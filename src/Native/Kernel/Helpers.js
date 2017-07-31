@@ -149,14 +149,28 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
           )
         })
       },
+      // we need to wrap the promise right away because it will start running
+      // as soon as created but the nativeBinding might be called way later
+      // after it's already completed and we do not want to catch errors
+      // asynchronously
       fromPromise: function fromPromise(promise) {
-        return scheduler.nativeBinding(function (schedulerCallback) {
+        var wrappedPromise =
           promise
-            .then(function (success) {
-              schedulerCallback(scheduler.succeed(success))
-            })
-            .catch(function (failure) {
-              schedulerCallback(scheduler.fail(failure))
+          .then(function (success) {
+            return { ok: true, value: success }
+          })
+          .catch(function (failure) {
+            return { ok: false, value: failure }
+          })
+
+        return scheduler.nativeBinding(function (schedulerCallback) {
+          wrappedPromise
+            .then(function (result) {
+              if (result.ok) {
+                schedulerCallback(scheduler.succeed(result.value))
+              } else {
+                schedulerCallback(scheduler.fail(result.value))
+              }
             })
         })
       }

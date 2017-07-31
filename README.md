@@ -9,8 +9,10 @@ Never forget that writing Native or Kernel code in Elm is dangerous. You should 
 
 ## Usage
 
+**Warning** This package is not published in the official Elm registry since it contains Kernel / Native code. You can still install it using [elm-github-install](https://github.com/gdotdesign/elm-github-install) or [elm-proper-install](https://github.com/eeue56/elm-proper-install).
+
 1. Add `pauldijou/elm-kernel-helpers` as a dependency inside your `elm-package.json`
-2. Add `import Native.Kernel.Helpers` inside your main file to include the JavaScript helpers
+2. Add `import Native.Kernel.Helpers` inside modules with Kernel / Native code needing them
 3. Import the helpers inside your native using `var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers`
 4. Enjoy all the following helpers...
 
@@ -159,9 +161,9 @@ helpers.result.isErr(result.err())            // true
 
 **task.rawSpawn(task: Task): Process**
 
-**task.fromCallback(callback): Task**
+**task.fromCallback(callback: Function): Task**
 
-The `callback` argument should be a function with two arguments: `succeed` and `fail` that you should call when resolving your task. It's the exact same pattern as when creating a `Promise` in JavaScript.
+The `callback` argument should be a function with two arguments, `succeed` and `fail`, that you should call when resolving your task. It's the exact same pattern as when creating a `Promise` in JavaScript.
 
 ```javascript
 var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
@@ -176,7 +178,7 @@ function doStuff() {
 }
 ```
 
-**task.fromPromise(promise): Task**
+**task.fromPromise(promise: Promise): Task**
 
 Create a task from a JavaScript `Promise`. If the promise succeed, the task will succeed, otherwise, both will fail.
 
@@ -192,6 +194,16 @@ function doStuff() {
   }))
 }
 ```
+
+### tuple
+
+**empty: ()**
+
+Return the empty tuple.
+
+**pair(a: Any, b: Any): (a, b)**
+
+Return a `Tuple2` with both values as first and second arguments.
 
 ## License
 
