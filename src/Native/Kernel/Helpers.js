@@ -17,10 +17,30 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
   var NothingCtor = ctorOf(Nothing)
   var JustCtor = ctorOf(Just(0))
 
+  function isNothing(value) {
+    return ctorOf(value) === NothingCtor
+  }
+
+  function isJust(value) {
+    return ctorOf(value) === JustCtor
+  }
+
   var Ok = _elm_lang$core$Result$Ok
   var Err = _elm_lang$core$Result$Err
   var OkCtor = ctorOf(Ok(0))
   var ErrCtor = ctorOf(Err(0))
+
+  function isOk(value) {
+    return ctorOf(value) === OkCtor
+  }
+
+  function isErr(value) {
+    return ctorOf(value) === ErrCtor
+  }
+
+  function isResult(value) {
+    return isOk(value) || isErr(value)
+  }
 
   return {
     // -------------------------------------------------------------------------
@@ -112,11 +132,25 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
     maybe: {
       nothing: Nothing,
       just: Just,
-      isNothing: function isNothing(value) {
-        return ctorOf(value) === NothingCtor
+      isNothing: isNothing,
+      isJust: isJust,
+      isMaybe: function isMaybe(value) {
+        return isNothing(value) || isJust(value)
       },
-      isJust: function isJust(value) {
-        return ctorOf(value) === JustCtor
+      get: function getMaybe(value) {
+        if (isJust(value)) {
+          return value._0
+        }
+        return undefined
+      },
+      withDefault: function maybeWithDefault(defaultValue, maybe) {
+        return A2(_elm_lang$core$Maybe$withDefault, defaultValue, maybe)
+      },
+      map: function maybeMap(mapper, maybe) {
+        return A2(_elm_lang$core$Maybe$map, mapper, maybe)
+      },
+      andThen: function maybeAndThen(fn, maybe) {
+        return A2(_elm_lang$core$Maybe$andThen, fn, maybe)
       }
     },
     // -------------------------------------------------------------------------
@@ -124,11 +158,30 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
     result: {
       ok: Ok,
       err: Err,
-      isOk: function isOk(value) {
-        return ctorOf(value) === OkCtor
+      isOk: isOk,
+      isErr: isErr,
+      isResult: isResult,
+      get: function get(value) {
+        if (isResult(value)) {
+          return value._0
+        }
+        return undefined
       },
-      isErr: function isErr(value) {
-        return ctorOf(value) === ErrCtor
+      withDefault: function resultWithDefault(defaultValue, result) {
+        return A2(_elm_lang$core$Result$withDefault, defaultValue, result)
+      },
+      toMaybe: _elm_lang$core$Result$toMaybe,
+      fromMaybe: function resultFromMaybe(err, maybe) {
+        return A2(_elm_lang$core$Result$fromMaybe, err, maybe)
+      },
+      map: function resultMap(mapper, result) {
+        return A2(_elm_lang$core$Result$map, mapper, result)
+      },
+      mapError: function resultMapError(mapper, result) {
+        return A2(_elm_lang$core$Result$mapError, mapper, result)
+      },
+      andThen: function resultAndThen(fn, result) {
+        return A2(_elm_lang$core$Result$andThen, fn, result)
       }
     },
     // -------------------------------------------------------------------------
@@ -181,7 +234,9 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       empty: _elm_lang$core$Native_Utils.Tuple0,
       pair: function pair(a, b) {
         return _elm_lang$core$Native_Utils.Tuple2(a, b)
-      }
+      },
+      first: _elm_lang$core$Tuple$first,
+      second: _elm_lang$core$Tuple$second
     }
   }
 }()

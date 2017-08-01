@@ -75,24 +75,51 @@ all =
       )
       , test "isNothing" (
         success
-        |> andThen (
-          Native.Tests.maybeIsNothing Nothing
-          |> shouldEqual True
-        )
-        |> andThen (
-          Native.Tests.maybeIsNothing (Just 1)
-          |> shouldEqual False
-        )
+        |> andThen (Native.Tests.maybeIsNothing Nothing  |> shouldEqual True)
+        |> andThen (Native.Tests.maybeIsNothing (Just 1) |> shouldEqual False)
       )
       , test "isJust" (
         success
+        |> andThen (Native.Tests.maybeIsJust Nothing  |> shouldEqual False)
+        |> andThen (Native.Tests.maybeIsJust (Just 1) |> shouldEqual True)
+      )
+      , test "isMaybe" (
+        success
+        |> andThen (Native.Tests.maybeIsMaybe Nothing  |> shouldEqual True)
+        |> andThen (Native.Tests.maybeIsMaybe (Just 1) |> shouldEqual True)
+      )
+      , test "get" (
+        Native.Tests.maybeGet (Just 1) |> shouldEqual 1
+      )
+      , test "withDefault" (
+        success
+        |> andThen (Native.Tests.maybeWithDefault { def = 1, maybe = Nothing } |> shouldEqual 1)
+        |> andThen (Native.Tests.maybeWithDefault { def = 1, maybe = Just 2  } |> shouldEqual 2)
+      )
+      , test "map" (
+        success
         |> andThen (
-          Native.Tests.maybeIsJust Nothing
-          |> shouldEqual False
+          Native.Tests.maybe_map { mapper = (\_ -> ""), maybe = Nothing }
+          |> shouldEqual Nothing
         )
         |> andThen (
-          Native.Tests.maybeIsJust (Just 1)
-          |> shouldEqual True
+          Native.Tests.maybe_map { mapper = (\v -> v + 1), maybe = Just 1 }
+          |> shouldEqual (Just 2)
+        )
+      )
+      , test "andThen" (
+        success
+        |> andThen (
+          Native.Tests.maybe_andThen { next = (\_ -> Just ""), maybe = Nothing }
+          |> shouldEqual Nothing
+        )
+        |> andThen (
+          Native.Tests.maybe_andThen { next = (\v -> Nothing), maybe = Just 1 }
+          |> shouldEqual Nothing
+        )
+        |> andThen (
+          Native.Tests.maybe_andThen { next = (\v -> Just (v + 1)), maybe = Just 1 }
+          |> shouldEqual (Just 2)
         )
       )
       ]
@@ -107,20 +134,53 @@ all =
       )
       , test "isOk" (
         success
-        |> andThen (
-          Native.Tests.resultIsOk (Ok "a") |> shouldEqual True
-        )
-        |> andThen (
-          Native.Tests.resultIsOk (Err 1) |> shouldEqual False
-        )
+        |> andThen (Native.Tests.resultIsOk (Ok "a") |> shouldEqual True)
+        |> andThen (Native.Tests.resultIsOk (Err 1)  |> shouldEqual False)
       )
       , test "isErr" (
         success
+        |> andThen (Native.Tests.resultIsErr (Ok 1)  |> shouldEqual False)
+        |> andThen (Native.Tests.resultIsErr (Err 1) |> shouldEqual True)
+      )
+      , test "isResult" (
+        success
+        |> andThen (Native.Tests.resultIsResult (Ok 1)  |> shouldEqual True)
+        |> andThen (Native.Tests.resultIsResult (Err 1) |> shouldEqual True)
+      )
+      , test "get" (
+        success
+        |> andThen (Native.Tests.resultGet (Ok 1)  |> shouldEqual 1)
+        |> andThen (Native.Tests.resultGet (Err 1) |> shouldEqual 1)
+      )
+      , test "withDefault" (
+        success
+        |> andThen (Native.Tests.result_withDefault { def = 1, result = Ok 2 } |> shouldEqual 2)
+        |> andThen (Native.Tests.result_withDefault { def = 1, result = Err 2  } |> shouldEqual 1)
+      )
+      , test "map" (
+        success
         |> andThen (
-          Native.Tests.resultIsErr (Ok 1) |> shouldEqual False
+          Native.Tests.result_map { mapper = (\_ -> ""), result = Err 1 }
+          |> shouldEqual (Err 1)
         )
         |> andThen (
-          Native.Tests.resultIsErr (Err 1) |> shouldEqual True
+          Native.Tests.result_map { mapper = (\v -> v + 1), result = Ok 1 }
+          |> shouldEqual (Ok 2)
+        )
+      )
+      , test "andThen" (
+        success
+        |> andThen (
+          Native.Tests.result_andThen { next = (\_ -> Just ""), result = Err 1 }
+          |> shouldEqual (Err 1)
+        )
+        |> andThen (
+          Native.Tests.result_andThen { next = (\v -> Err 2), result = Ok 1 }
+          |> shouldEqual (Err 2)
+        )
+        |> andThen (
+          Native.Tests.result_andThen { next = (\v -> Ok (v + 1)), result = Ok 1 }
+          |> shouldEqual (Ok 2)
         )
       )
       ]
@@ -158,6 +218,14 @@ all =
       , test "pair" (
         Native.Tests.tuplePair { first = 1, second = "a" }
         |> shouldEqual (1, "a")
+      )
+      , test "first" (
+        Native.Tests.tupleFirst ("a", True)
+        |> shouldEqual "a"
+      )
+      , test "second" (
+        Native.Tests.tupleSecond ("a", True)
+        |> shouldEqual True
       )
       ]
     ]

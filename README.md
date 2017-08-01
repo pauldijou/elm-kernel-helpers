@@ -14,6 +14,10 @@ Never forget that writing Native or Kernel code in Elm is dangerous. You should 
 
 - Do not confuse Elm values and JavaScript values. A JavaScript array is neither an Elm `List` nor Elm `Array`, those a three different data structures. `null` and `undefined` are not the same as `Nothing`. You should probably never use either of them in your code.
 
+- If you are missing any documentation on a function, check the [Elm one](http://package.elm-lang.org/packages/elm-lang/core/5.1.1), all those functions are the same as the Elm ones but with a JavaScript syntax.
+
+- Pretty please, don't judge me or hate me for this project. Even if Kernel / Native is not the way to go when you are using Elm, sometime, you just need to write some (even more if you are doing server-side Elm), so you might as well do it with some helpers, right?
+
 
 ## Usage
 
@@ -29,11 +33,11 @@ Never forget that writing Native or Kernel code in Elm is dangerous. You should 
 
 **basics.ctorOf(value): undefined | string**
 
-Try to retrieve the `ctor` or `constructor type` of an Elm value, mostly work for union types and some other specific types. For example, `ctorOf(maybe.nothing)` will return `'Nothing'`, `ctorOf(list.empty)` will return `[]`, but `ctorOf(<an elm record>)` will return `undefined` since records does not have a `ctor`.
+> Try to retrieve the `ctor` or `constructor type` of an Elm value, mostly work for union types and some other specific types. For example, `ctorOf(maybe.nothing)` will return `'Nothing'`, `ctorOf(list.empty)` will return `[]`, but `ctorOf(<an elm record>)` will return `undefined` since records does not have a `ctor`.
 
 **basics.scheduler: Scheduler**
 
-Return the Elm scheduler. Useful for some specific operations. Be careful that it might be removed in the next 0.19 version, so you should try to avoid using it as much as possible. Check the **task** API.
+> Return the Elm scheduler. Useful for some specific operations. Be careful that it might be removed in the next 0.19 version, so you should try to avoid using it as much as possible. Check the **task** API.
 
 **basics.equals(a: Any, b: Any): Bool**
 
@@ -41,39 +45,74 @@ Test if any two Elm values are equals.
 
 **basics.update(record: Record, updateFields: Object): Record**
 
-Create a new record from the 1st argument `record`, updating only the fields from `updateFields`. Similar to `Object.assign` but immutable.
+> Create a new record from the 1st argument `record`, updating only the fields from `updateFields`. Similar to `Object.assign` but immutable.
 
 **toString(value: Any): String**
 
-Convert any Elm value to the "best" possible string. This is not serialization but more for debugging and `console.log` stuff.
+> Convert any Elm value to the "best" possible string. This is not serialization but more for debugging and `console.log` stuff.
 
 ### dict
 
 **dict.empty: Dict**
 
-Return the empty `Dict`.
+> Return the empty `Dict`.
 
 **dict.insert(key: comparable, value: Any, dict: Dict): Dict**
 
-
+>  Insert a key/value pair inside a dict
 
 **dict.update(key: comparable, updater: Maybe -> Maybe, dict: Dict)**
 
+> Update a value based on its key
+
+```javascript
+var dict = helpers.dict.empty
+dict = helpers.dict.insert('key', 'value', dict)
+dict = helpers.dict.update('key', (value) => {
+  if (helpers.maybe.isJust(value)) {
+    // We did find a value for this key,
+    // let's extract it from the maybe and update it
+    return helpers.maybe.just('updated' + helpers.maybe.get(value))
+  } else {
+    // there was no value with the 'key' key
+    // let's create one
+    return helpers.maybe.just('newValue')
+  }
+}, dict)
+// dict == { key: 'updatedvalue' }
+```
+
 **dict.remove(key: comparable, dict: Dict): Dict**
+
+> Remove a particular key (and its value) from a dict
 
 **dict.isEmpty(dict: Dict): Bool**
 
+> Test if a dict is empty
+
 **dict.member(key: comparable, dict: Dict): Bool**
+
+> Test if a key is inside a dict
 
 **dict.get(key: comparable, dict: Dict): Maybe**
 
+> Try to extract the value corresponding to the key from a dict
+
 **dict.size(dict: Dict): Int**
+
+> Return the number of keys inside a dict
 
 **dict.keys(dict: Dict): List String**
 
+> Return the list of keys inside a dict
+
 **dict.toList(dict: Dict): List (comparable, Any)**
 
+> Transform a dict to a list of `Tuple2` (key, value)
+
 **dict.fromList(list: List (comparable, Any)): Dict**
+
+> Create a dict from a list of `Tuple2` (key, value)
 
 **dict.map(mapper: comparable -> Any -> Any, dict: Dict): Dict**
 
@@ -141,29 +180,37 @@ result = helpers.list.isEmpty(result)
 
 **list.fromArray(array: JavaScript Array): List**
 
-Create a list from a JavaScript array. Do not confuse with the Elm Array type.
+> Create a list from a JavaScript array. Do not confuse with the Elm Array type.
 
 **list.toArray(list: List): JavaScript Array**
 
-Convert a list to a JavaScript array. Do not confuse with the Elm Array type.
+> Convert a list to a JavaScript array. Do not confuse with the Elm Array type.
 
 ### maybe
 
 **maybe.nothing: Maybe**
 
-Return the `Nothing` value.
+> Return the `Nothing` value.
 
 **maybe.just(value: Any): Maybe**
 
-Wrap your value inside a `Just`, returning a `Maybe`.
+> Wrap your value inside a `Just`, returning a `Maybe`.
 
 **maybe.isNothing(value: Maybe): Bool**
 
-Test if your maybe value is actually a `Nothing`.
+> Test if your maybe value is actually a `Nothing`.
 
 **maybe.isJust(value: Maybe): Bool**
 
-Test if your maybe value is actually a `Just`.
+> Test if your maybe value is actually a `Just`.
+
+**maybe.isMaybe(value: Maybe): Bool**
+
+> Test if your value is a `Maybe`, either `Just` or `Maybe`.
+
+**maybe.get(value: Maybe): Any**
+
+> If value is a `Just`, will return the value inside it. Otherwise, return `undefined`.
 
 ```javascript
 var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
@@ -178,19 +225,27 @@ helpers.maybe.isJust(maybe.just('a'))  // true
 
 **result.ok(value: Any): Result**
 
-Wrap your value inside a `Ok`, returning a `Result`.
+> Wrap your value inside a `Ok`, returning a `Result`.
 
 **result.err(value: Any): Result**
 
-Wrap your value inside a `Err`, returning a `Result`.
+> Wrap your value inside a `Err`, returning a `Result`.
 
 **result.isOk(result: Result): Bool**
 
-Test if your maybe value is actually a `Ok`.
+> Test if your maybe value is actually a `Ok`.
 
 **result.isErr(result: Result): Bool**
 
-Test if your maybe value is actually a `Err`.
+> Test if your maybe value is actually a `Err`.
+
+**result.isResult(value: Result): Bool**
+
+> Test if your value is a `Result`, either `Ok` or `Err`.
+
+**result.get(value: Maybe): Any**
+
+> If value is a `Result`, will return the value inside it. Otherwise, return `undefined`.
 
 ```javascript
 var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
@@ -205,23 +260,23 @@ helpers.result.isErr(result.err())            // true
 
 **task.succeed(value: Any): Task**
 
-Return a successful task with your value as the success.
+> Return a successful task with your value as the success.
 
 **task.fail(value: Any): Task**
 
-Return a failed task with your value as the failure.
+> Return a failed task with your value as the failure.
 
 **task.spawn(task: Task): Task**
 
-Will call `rawSpawn` and wrap the process inside a task.
+> Will call `rawSpawn` and wrap the process inside a task.
 
 **task.rawSpawn(task: Task): Process**
 
-This one is a bit tricky to explain. Let's just say that the task will be executed but will or will not go inside your `update` function depending on how you created it. If it's only a raw task, it will probably be just a fire and forget, but if it is linked to a `Plateform.Router`, it might go to your app `update` or self msg on an effect module. Not 100% at all to be honest.
+> This one is a bit tricky to explain. Let's just say that the task will be executed but will or will not go inside your `update` function depending on how you created it. If it's only a raw task, it will probably be just a fire and forget, but if it is linked to a `Plateform.Router`, it might go to your app `update` or self msg on an effect module. Not 100% at all to be honest.
 
 **task.fromCallback(callback: Function): Task**
 
-The `callback` argument should be a function with two arguments, `succeed` and `fail`, that you should call when resolving your task. It's the exact same pattern as when creating a `Promise` in JavaScript.
+> The `callback` argument should be a function with two arguments, `succeed` and `fail`, that you should call when resolving your task. It's the exact same pattern as when creating a `Promise` in JavaScript.
 
 ```javascript
 var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
@@ -238,7 +293,7 @@ function doStuff() {
 
 **task.fromPromise(promise: Promise): Task**
 
-Create a task from a JavaScript `Promise`. If the promise succeed, the task will succeed, otherwise, both will fail.
+> Create a task from a JavaScript `Promise`. If the promise succeed, the task will succeed, otherwise, both will fail.
 
 ```javascript
 var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
@@ -257,11 +312,19 @@ function doStuff() {
 
 **empty: ()**
 
-Return the empty tuple.
+> Return the empty tuple.
 
 **pair(a: Any, b: Any): (a, b)**
 
-Return a `Tuple2` with both values as first and second arguments.
+> Return a `Tuple2` with both values as first and second arguments.
+
+**first((a: Any, b: Any)): Any**
+
+> Return the first value `a` from a `Tuple2`
+
+**second((a: Any, b: Any)): Any**
+
+> Return the second value `b` from a `Tuple2`
 
 ## License
 
