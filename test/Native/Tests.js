@@ -3,6 +3,9 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
 
   return {
     ctorOf: helpers.basics.ctorOf,
+    equals: function (params) { return helpers.basics.equals(params.first, params.second) },
+    update: function (params) { return helpers.basics.update(params.record, params.patch) },
+    toString: helpers.basics.toString,
     dictEmpty: helpers.dict.empty,
     dictInsert: function (params) {
       return helpers.dict.insert(params.key, params.value, params.dict)
@@ -16,6 +19,8 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
     resultErr: helpers.result.err,
     resultIsOk: helpers.result.isOk,
     resultIsErr: helpers.result.isErr,
+    taskSucceed: helpers.task.succeed,
+    taskFail: helpers.task.fail,
     taskFromCallback: function (value) {
       return helpers.task.fromCallback(function (succeed) {
         setTimeout(function () {

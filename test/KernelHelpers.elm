@@ -17,13 +17,35 @@ all: Test
 all =
   describe "Kernel Helpers"
     [ describe "basics"
-      [ test "ctorOf Nothing" (
-        Native.Tests.ctorOf Nothing
-        |> shouldEqual "Nothing"
+      [ test "ctorOf" (
+        success
+        |> andThen (
+          Native.Tests.ctorOf Nothing |> shouldEqual "Nothing"
+        )
+        |> andThen (
+          Native.Tests.ctorOf (Just 1) |> shouldEqual "Just"
+        )
+        |> andThen (
+          Native.Tests.ctorOf [] |> shouldEqual "[]"
+        )
+        |> andThen (
+          Native.Tests.ctorOf [ 1 ] |> shouldEqual "::"
+        )
       )
-      , test "ctorOf Just" (
-        Native.Tests.ctorOf (Just 1)
-        |> shouldEqual "Just"
+      , test "equals" (
+        success
+        |> andThen (
+          Native.Tests.equals { first = { a = "a", b = 1 }, second = { b = 1, a = "a" } }
+          |> shouldEqual True
+        )
+        |> andThen (
+          Native.Tests.equals { first = 1, second = 2 }
+          |> shouldEqual False
+        )
+        |> andThen (
+          Native.Tests.equals { first = True, second = 1 }
+          |> shouldEqual False
+        )
       )
       ]
     , describe "dict"
@@ -51,21 +73,27 @@ all =
         Native.Tests.maybeJust { a = 1 }
         |> shouldEqual (Just { a = 1 })
       )
-      , test "isNothing of Nothing" (
-        Native.Tests.maybeIsNothing Nothing
-        |> shouldEqual True
+      , test "isNothing" (
+        success
+        |> andThen (
+          Native.Tests.maybeIsNothing Nothing
+          |> shouldEqual True
+        )
+        |> andThen (
+          Native.Tests.maybeIsNothing (Just 1)
+          |> shouldEqual False
+        )
       )
-      , test "isNothing of Just" (
-        Native.Tests.maybeIsNothing (Just 1)
-        |> shouldEqual False
-      )
-      , test "isJust of Nothing" (
-        Native.Tests.maybeIsJust Nothing
-        |> shouldEqual False
-      )
-      , test "isJust of Just" (
-        Native.Tests.maybeIsJust (Just 1)
-        |> shouldEqual True
+      , test "isJust" (
+        success
+        |> andThen (
+          Native.Tests.maybeIsJust Nothing
+          |> shouldEqual False
+        )
+        |> andThen (
+          Native.Tests.maybeIsJust (Just 1)
+          |> shouldEqual True
+        )
       )
       ]
     , describe "result"
@@ -77,25 +105,35 @@ all =
         Native.Tests.resultErr { a = 1 }
         |> shouldEqual (Err { a = 1 })
       )
-      , test "isOk of Ok" (
-        Native.Tests.resultIsOk (Ok "a")
-        |> shouldEqual True
+      , test "isOk" (
+        success
+        |> andThen (
+          Native.Tests.resultIsOk (Ok "a") |> shouldEqual True
+        )
+        |> andThen (
+          Native.Tests.resultIsOk (Err 1) |> shouldEqual False
+        )
       )
-      , test "isOk of Err" (
-        Native.Tests.resultIsOk (Err 1)
-        |> shouldEqual False
-      )
-      , test "isErr of Ok" (
-        Native.Tests.resultIsErr (Ok 1)
-        |> shouldEqual False
-      )
-      , test "isErr of Err" (
-        Native.Tests.resultIsErr (Err 1)
-        |> shouldEqual True
+      , test "isErr" (
+        success
+        |> andThen (
+          Native.Tests.resultIsErr (Ok 1) |> shouldEqual False
+        )
+        |> andThen (
+          Native.Tests.resultIsErr (Err 1) |> shouldEqual True
+        )
       )
       ]
     , describe "task"
-      [ test "fromCallback success" (
+      [ test "succeed" (
+        Native.Tests.taskSucceed "a"
+        |> shouldSucceedWith "a"
+      )
+      , test "fail" (
+        Native.Tests.taskFail "a"
+        |> shouldFailWith "a"
+      )
+      , test "fromCallback success" (
         Native.Tests.taskFromCallback 42
         |> shouldSucceedWith 42
       )

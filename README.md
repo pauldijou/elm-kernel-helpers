@@ -7,14 +7,21 @@ Never forget that writing Native or Kernel code in Elm is dangerous. You should 
 - No more `AX` and `FX` on most common functions, we will take care of that for you.
 - No longer rely on `if (value.ctor === 'Nothing')`, we have better helpers for that.
 
-## Usage
 
-**Warning** This package is not published in the official Elm registry since it contains Kernel / Native code. You can still install it using [elm-github-install](https://github.com/gdotdesign/elm-github-install) or [elm-proper-install](https://github.com/eeue56/elm-proper-install).
+## Be aware of...
+
+- This package is not published in the official Elm registry since it contains Kernel / Native code. You can still install it using [elm-github-install](https://github.com/gdotdesign/elm-github-install) or [elm-proper-install](https://github.com/eeue56/elm-proper-install).
+
+- Do not confuse Elm values and JavaScript values. A JavaScript array is neither an Elm `List` nor Elm `Array`, those a three different data structures. `null` and `undefined` are not the same as `Nothing`. You should probably never use either of them in your code.
+
+
+## Usage
 
 1. Add `pauldijou/elm-kernel-helpers` as a dependency inside your `elm-package.json`
 2. Add `import Native.Kernel.Helpers` inside modules with Kernel / Native code needing them
 3. Import the helpers inside your native using `var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers`
 4. Enjoy all the following helpers...
+
 
 ## API
 
@@ -22,7 +29,7 @@ Never forget that writing Native or Kernel code in Elm is dangerous. You should 
 
 **basics.ctorOf(value): undefined | string**
 
-Try to retrieve the `ctor` or `constructor type` of an Elm value, only works for union types. For example, `ctorOf(Nothing)` will return `'Nothing'`. But `ctorOf(list.empty)` will return `undefined` since the Elm `List` type is not an union type and does not have a `ctor`.
+Try to retrieve the `ctor` or `constructor type` of an Elm value, mostly work for union types and some other specific types. For example, `ctorOf(maybe.nothing)` will return `'Nothing'`, `ctorOf(list.empty)` will return `[]`, but `ctorOf(<an elm record>)` will return `undefined` since records does not have a `ctor`.
 
 **basics.scheduler: Scheduler**
 
@@ -30,7 +37,7 @@ Return the Elm scheduler. Useful for some specific operations. Be careful that i
 
 **basics.equals(a: Any, b: Any): Bool**
 
-Test is any two Elm values are equals.
+Test if any two Elm values are equals.
 
 **basics.update(record: Record, updateFields: Object): Record**
 
@@ -42,9 +49,13 @@ Convert any Elm value to the "best" possible string. This is not serialization b
 
 ### dict
 
-**dict.dict.empty: Dict**
+**dict.empty: Dict**
+
+Return the empty `Dict`.
 
 **dict.insert(key: comparable, value: Any, dict: Dict): Dict**
+
+
 
 **dict.update(key: comparable, updater: Maybe -> Maybe, dict: Dict)**
 
@@ -93,17 +104,40 @@ Convert any Elm value to the "best" possible string. This is not serialization b
 
 **list.empty: List**
 
+> Return the empty list.
+
 **list.singleton(value: Any): List**
+
+> Return a `List` with your value as single element.
 
 **list.isEmpty(list: List): Bool**
 
+> Test if a list is empty.
+
 **list.length(list: List): Int**
+
+> Return the length of a list.
 
 **list.reverse(list: List): List**
 
+> Return a new list with all elements in the reverse order.
+
 **list.member(value: Any, list: List): Bool**
 
+> Test if your value is inside the list.
+
 **list.filter(predicate: Any -> Bool, list: List): List**
+
+> Return a new list with only the elements that match the predicate.
+
+```javascript
+var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
+
+var result = helpers.list.singleton(helpers.maybe.nothing)
+result = helpers.list.filter(helpers.maybe.isOk, result)
+result = helpers.list.isEmpty(result)
+// result === true
+```
 
 **list.fromArray(array: JavaScript Array): List**
 
@@ -117,11 +151,19 @@ Convert a list to a JavaScript array. Do not confuse with the Elm Array type.
 
 **maybe.nothing: Maybe**
 
+Return the `Nothing` value.
+
 **maybe.just(value: Any): Maybe**
+
+Wrap your value inside a `Just`, returning a `Maybe`.
 
 **maybe.isNothing(value: Maybe): Bool**
 
+Test if your maybe value is actually a `Nothing`.
+
 **maybe.isJust(value: Maybe): Bool**
+
+Test if your maybe value is actually a `Just`.
 
 ```javascript
 var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
@@ -136,11 +178,19 @@ helpers.maybe.isJust(maybe.just('a'))  // true
 
 **result.ok(value: Any): Result**
 
+Wrap your value inside a `Ok`, returning a `Result`.
+
 **result.err(value: Any): Result**
+
+Wrap your value inside a `Err`, returning a `Result`.
 
 **result.isOk(result: Result): Bool**
 
+Test if your maybe value is actually a `Ok`.
+
 **result.isErr(result: Result): Bool**
+
+Test if your maybe value is actually a `Err`.
 
 ```javascript
 var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
@@ -153,13 +203,21 @@ helpers.result.isErr(result.err())            // true
 
 ### task
 
-**task.succeed(value): Task**
+**task.succeed(value: Any): Task**
 
-**task.fail(value): Task**
+Return a successful task with your value as the success.
+
+**task.fail(value: Any): Task**
+
+Return a failed task with your value as the failure.
 
 **task.spawn(task: Task): Task**
 
+Will call `rawSpawn` and wrap the process inside a task.
+
 **task.rawSpawn(task: Task): Process**
+
+This one is a bit tricky to explain. Let's just say that the task will be executed but will or will not go inside your `update` function depending on how you created it. If it's only a raw task, it will probably be just a fire and forget, but if it is linked to a `Plateform.Router`, it might go to your app `update` or self msg on an effect module. Not 100% at all to be honest.
 
 **task.fromCallback(callback: Function): Task**
 
