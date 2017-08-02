@@ -166,6 +166,17 @@ all =
           |> shouldEqual (Just 2)
         )
       )
+      , test "caseOf" (
+        success
+        |> andThen (
+          Native.Tests.maybe_caseOf { maybe = Nothing, onNothing = (\_ -> 1), onJust = (\_ -> 2)}
+          |> shouldEqual 1
+        )
+        |> andThen (
+          Native.Tests.maybe_caseOf { maybe = Just 1, onNothing = (\_ -> 3), onJust = (\v -> v + 1)}
+          |> shouldEqual 2
+        )
+      )
       ]
     , describe "result"
       [ test "ok" (
@@ -210,6 +221,17 @@ all =
         |> andThen (
           Native.Tests.result_map { mapper = (\v -> v + 1), result = Ok 1 }
           |> shouldEqual (Ok 2)
+        )
+      )
+      , test "caseOf" (
+        success
+        |> andThen (
+          Native.Tests.result_caseOf { result = Err 1, onErr = (\v -> v + 1), onOk = (\v -> v + 2)}
+          |> shouldEqual 2
+        )
+        |> andThen (
+          Native.Tests.result_caseOf { result = Ok 1, onErr = (\v -> v + 1), onOk = (\v -> v + 2)}
+          |> shouldEqual 3
         )
       )
       , test "andThen" (

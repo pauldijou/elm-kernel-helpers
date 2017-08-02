@@ -17,12 +17,12 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
   var NothingCtor = ctorOf(Nothing)
   var JustCtor = ctorOf(Just(0))
 
-  function isNothing(value) {
-    return ctorOf(value) === NothingCtor
-  }
+  function isNothing(value) { return ctorOf(value) === NothingCtor }
+  function isJust(value)    { return ctorOf(value) === JustCtor }
 
-  function isJust(value) {
-    return ctorOf(value) === JustCtor
+  function maybeGet(value) {
+    if (isJust(value)) { return value._0 }
+    return undefined
   }
 
   var Ok = _elm_lang$core$Result$Ok
@@ -30,16 +30,13 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
   var OkCtor = ctorOf(Ok(0))
   var ErrCtor = ctorOf(Err(0))
 
-  function isOk(value) {
-    return ctorOf(value) === OkCtor
-  }
+  function isOk(value)     { return ctorOf(value) === OkCtor }
+  function isErr(value)    { return ctorOf(value) === ErrCtor }
+  function isResult(value) { return isOk(value) || isErr(value) }
 
-  function isErr(value) {
-    return ctorOf(value) === ErrCtor
-  }
-
-  function isResult(value) {
-    return isOk(value) || isErr(value)
+  function resultGet(value) {
+    if (isResult(value)) { return value._0 }
+    return undefined
   }
 
   return {
@@ -137,12 +134,7 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       isMaybe: function isMaybe(value) {
         return isNothing(value) || isJust(value)
       },
-      get: function getMaybe(value) {
-        if (isJust(value)) {
-          return value._0
-        }
-        return undefined
-      },
+      get: maybeGet,
       withDefault: function maybeWithDefault(defaultValue, maybe) {
         return A2(_elm_lang$core$Maybe$withDefault, defaultValue, maybe)
       },
@@ -151,6 +143,12 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       },
       andThen: function maybeAndThen(fn, maybe) {
         return A2(_elm_lang$core$Maybe$andThen, fn, maybe)
+      },
+      caseOf: function maybeCaseOf(maybe, onNothing, onJust) {
+        if (isJust(maybe)) {
+          return onJust(maybeGet(maybe))
+        }
+        return onNothing()
       }
     },
     // -------------------------------------------------------------------------
@@ -161,12 +159,7 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       isOk: isOk,
       isErr: isErr,
       isResult: isResult,
-      get: function get(value) {
-        if (isResult(value)) {
-          return value._0
-        }
-        return undefined
-      },
+      get: resultGet,
       withDefault: function resultWithDefault(defaultValue, result) {
         return A2(_elm_lang$core$Result$withDefault, defaultValue, result)
       },
@@ -182,6 +175,11 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       },
       andThen: function resultAndThen(fn, result) {
         return A2(_elm_lang$core$Result$andThen, fn, result)
+      },
+      caseOf: function resultCaseOf(result, onErr, onOk) {
+        if (isErr(result)) { return onErr(resultGet(result)) }
+        if (isOk(result))  { return onOk(resultGet(result)) }
+        return undefined
       }
     },
     // -------------------------------------------------------------------------

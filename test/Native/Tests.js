@@ -30,6 +30,7 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
     maybeWithDefault: function (params) { return helpers.maybe.withDefault(params.def, params.maybe) },
     maybe_map: function (params) { return helpers.maybe.map(params.mapper, params.maybe) },
     maybe_andThen: function (params) { return helpers.maybe.andThen(params.next, params.maybe) },
+    maybe_caseOf: function (params) { return helpers.maybe.caseOf(params.maybe, params.onNothing, params.onJust) },
     resultOk: helpers.result.ok,
     resultErr: helpers.result.err,
     resultIsOk: helpers.result.isOk,
@@ -42,6 +43,7 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
     result_andThen: function (params) { return helpers.result.andThen(params.next, params.result) },
     result_toMaybe: helpers.result.toMaybe,
     result_fromMaybe: function (params) { return helpers.result.fromMaybe(params.error, params.result) },
+    result_caseOf: function (params) { return helpers.result.caseOf(params.result, params.onErr, params.onOk) },
     taskSucceed: helpers.task.succeed,
     taskFail: helpers.task.fail,
     taskFromCallback: function (value) {

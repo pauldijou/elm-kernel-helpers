@@ -226,7 +226,7 @@ helpers.maybe.isMaybe(maybe.nothing)   // true
 helpers.maybe.isMaybe(maybe.just('a')) // true
 ```
 
-**maybe.get(value: Maybe): Any**
+**maybe.get(value: Maybe): Any | undefined**
 
 > If value is a `Just`, will return the value inside it. Otherwise, return `undefined`.
 
@@ -275,7 +275,7 @@ helpers.result.isResult(result.ok(true))      // true
 helpers.result.isResult(result.err())         // true
 ```
 
-**result.get(value: Maybe): Any**
+**result.get(value: Maybe): Any | undefined**
 
 > If value is a `Result`, will return the value inside it. Otherwise, return `undefined`.
 
