@@ -1,4 +1,4 @@
-port module KernelHelpers exposing (..)
+port module HelpersTest exposing (..)
 
 import Dict
 import Task
@@ -15,7 +15,7 @@ port emit : Event -> Cmd msg
 
 all: Test
 all =
-  describe "Kernel Helpers"
+  describe "Helpers"
     [ describe "basics"
       [ test "ctorOf" (
         success
@@ -47,6 +47,14 @@ all =
           |> shouldEqual False
         )
       )
+      , test "toString" (
+        success
+        |> andThen (Native.Tests.toString 1 |> shouldEqual "1")
+        |> andThen (Native.Tests.toString 4.2 |> shouldEqual "4.2")
+        |> andThen (Native.Tests.toString "a" |> shouldEqual "\"a\"")
+        |> andThen (Native.Tests.toString True |> shouldEqual "True")
+        |> andThen (Native.Tests.toString False |> shouldEqual "False")
+      )
       ]
     , describe "dict"
       [ test "empty" (
@@ -60,8 +68,44 @@ all =
       ]
     , describe "list"
       [ test "empty" (
-        Native.Tests.listEmpty
+        Native.Tests.list_empty
         |> shouldEqual []
+      )
+      , test "singleton" (
+        Native.Tests.list_singleton 1
+        |> shouldEqual [ 1 ]
+      )
+      , test "length" (
+        Native.Tests.list_length [ 1, 2, 3 ]
+        |> shouldEqual 3
+      )
+      , test "reverse" (
+        Native.Tests.list_reverse [ 1, 2, 3 ]
+        |> shouldEqual [ 3, 2, 1 ]
+      )
+      , test "member" (
+        success
+        |> andThen (Native.Tests.list_member { value = 1, list = [ 1, 2, 3 ] } |> shouldEqual True)
+        |> andThen (Native.Tests.list_member { value = 2, list = [ 1, 2, 3 ] } |> shouldEqual True)
+        |> andThen (Native.Tests.list_member { value = 3, list = [ 1, 2, 3 ] } |> shouldEqual True)
+        |> andThen (Native.Tests.list_member { value = 4, list = [ 1, 2, 3 ] } |> shouldEqual False)
+        |> andThen (Native.Tests.list_member { value = 5, list = [ 1, 2, 3 ] } |> shouldEqual False)
+      )
+      , test "filter" (
+        Native.Tests.list_filter { predicate = (\v -> v % 2 == 0), list = [ 1, 2, 3, 4 ] }
+        |> shouldEqual [ 2, 4 ]
+      )
+      , test "fromArray" (
+        Native.Tests.list_fromArray Native.Tests.jsArray
+        |> shouldEqual [ 1, 2, 3 ]
+      )
+      , test "toArray" (
+        Native.Tests.list_toArray [ 1, 2, 3 ]
+        |> shouldEqual Native.Tests.jsArray
+      )
+      , test "prepend" (
+        Native.Tests.list_prepend { value = 1, list = [ 2, 3 ] }
+        |> shouldEqual [ 1, 2, 3 ]
       )
       ]
     , describe "maybe"
@@ -201,11 +245,11 @@ all =
         Native.Tests.taskFromCallbackFail 42
         |> shouldFailWith 42
       )
-      , test "fromPromise success" (
+      , test "fromPromise success" <| lazy (\_ ->
         Native.Tests.taskFromPromise "42"
         |> shouldSucceedWith "42"
       )
-      , test "fromPromise failure" (
+      , test "fromPromise failure" <| lazy (\_ ->
         Native.Tests.taskFromPromiseFail "42"
         |> shouldFailWith "42"
       )

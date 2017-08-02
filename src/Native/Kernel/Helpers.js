@@ -56,20 +56,20 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
     // DICT
     dict: {
       empty: _elm_lang$core$Dict$empty,
-      insert: function insert(key, value, dict) {
+      insert: function dictInsert(key, value, dict) {
         return A3(_elm_lang$core$Dict$insert, key, value, dict)
       },
-      update: function update(key, updater, dict) {
+      update: function dictUpdate(key, updater, dict) {
         return A3(_elm_lang$core$Dict$update, key, updater, dict)
       },
-      remove: function remove(key, dict) {
+      remove: function dictRemove(key, dict) {
         return A2(_elm_lang$core$Dict$remove, key, dict)
       },
       isEmpty: _elm_lang$core$Dict$isEmpty,
-      member: function member(key, dict) {
+      member: function dictMember(key, dict) {
         return A2(_elm_lang$core$Dict$member, key, dict)
       },
-      get: function get(key, dict) {
+      get: function dictGet(key, dict) {
         return A2(_elm_lang$core$Dict$get, key, dict)
       },
       size: _elm_lang$core$Dict$size,
@@ -78,32 +78,32 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       toList: _elm_lang$core$Dict$toList,
       fromList: _elm_lang$core$Dict$fromList,
       // map(function (key, value) { return newValue }, myDict)
-      map: function map(mapper, dict) {
+      map: function dictMap(mapper, dict) {
         return A2(_elm_lang$core$Dict$map, F2(mapper), dict)
       },
       // foldl(function (key, value, acc) { return newAcc }, initAcc, dict)
-      foldl: function foldl(folder, acc, dict) {
+      foldl: function dictFoldl(folder, acc, dict) {
         return A3(_elm_lang$core$Dict$foldl, F3(folder), acc, dict)
       },
-      foldr: function foldr(folder, acc, dict) {
+      foldr: function dictFoldr(folder, acc, dict) {
         return A3(_elm_lang$core$Dict$foldr, F3(folder), acc, dict)
       },
-      filter: function filter(predicate, dict) {
+      filter: function dictFilter(predicate, dict) {
         return A2(_elm_lang$core$Dict$filter, F2(predicate), dict)
       },
-      partition: function partition(predicate, dict) {
+      partition: function dictPartition(predicate, dict) {
         return A2(_elm_lang$core$Dict$partition, F2(predicate), dict)
       },
-      union: function union(dict1, dict2) {
+      union: function dictUnion(dict1, dict2) {
         return A2(_elm_lang$core$Dict$union, dict1, dict2)
       },
-      intersect: function intersect(dict1, dict2) {
+      intersect: function dictIntersect(dict1, dict2) {
         return A2(_elm_lang$core$Dict$intersect, dict1, dict2)
       },
-      diff: function diff(dict1, dict2) {
+      diff: function dictDiff(dict1, dict2) {
         return A2(_elm_lang$core$Dict$diff, dict1, dict2)
       },
-      merge: function merge(left, both, right, leftDict, rightDict, acc) {
+      merge: function dictMerge(left, both, right, leftDict, rightDict, acc) {
         return A6(_elm_lang$core$Dict$merge, left, both, right, leftDict, rightDict, acc)
       }
     },
@@ -115,15 +115,15 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       isEmpty: _elm_lang$core$List$isEmpty,
       length: _elm_lang$core$List$length,
       reverse: _elm_lang$core$List$reverse,
-      member: function member(value, list) {
+      member: function listMember(value, list) {
         return A2(_elm_lang$core$List$member, value, list)
       },
-      filter: function filter(predicate, list) {
+      filter: function listFilter(predicate, list) {
         return A2(_elm_lang$core$List$filter, predicate, list)
       },
       fromArray: _elm_lang$core$Native_List.fromArray,
       toArray: _elm_lang$core$Native_List.toArray,
-      prepend: function prepend(value, list) {
+      prepend: function listPrepend(value, list) {
         return Cons(value, list)
       }
     },
@@ -232,7 +232,7 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
     // TUPLE
     tuple: {
       empty: _elm_lang$core$Native_Utils.Tuple0,
-      pair: function pair(a, b) {
+      pair: function tuplePair(a, b) {
         return _elm_lang$core$Native_Utils.Tuple2(a, b)
       },
       first: _elm_lang$core$Tuple$first,

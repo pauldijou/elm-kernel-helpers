@@ -1,7 +1,7 @@
 {
   "scripts": {
     "deps": "elm-install",
-    "test": "elm-ordeal test/KernelHelpers.elm --node"
+    "test": "elm-ordeal test/HelpersTest.elm --node"
   },
   "devDependencies": {
     "elm": "^0.18.0",

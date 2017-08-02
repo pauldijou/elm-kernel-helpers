@@ -2,6 +2,7 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
   var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
 
   return {
+    jsArray: [ 1, 2, 3 ],
     ctorOf: helpers.basics.ctorOf,
     equals: function (params) { return helpers.basics.equals(params.first, params.second) },
     update: function (params) { return helpers.basics.update(params.record, params.patch) },
@@ -10,7 +11,16 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
     dictInsert: function (params) {
       return helpers.dict.insert(params.key, params.value, params.dict)
     },
-    listEmpty: helpers.list.empty,
+    list_empty: helpers.list.empty,
+    list_singleton: helpers.list.singleton,
+    list_isEmpty: helpers.list.isEmpty,
+    list_length: helpers.list.length,
+    list_reverse: helpers.list.reverse,
+    list_member: function (params) { return helpers.list.member(params.value, params.list) },
+    list_filter: function (params) { return helpers.list.filter(params.predicate, params.list) },
+    list_fromArray: helpers.list.fromArray,
+    list_toArray: helpers.list.toArray,
+    list_prepend: function (params) { return helpers.list.prepend(params.value, params.list) },
     maybeNothing: helpers.maybe.nothing,
     maybeJust: helpers.maybe.just,
     maybeIsNothing: helpers.maybe.isNothing,
@@ -38,28 +48,28 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
       return helpers.task.fromCallback(function (succeed) {
         setTimeout(function () {
           succeed(value)
-        }, 10)
+        }, 5)
       })
     },
     taskFromCallbackFail: function (value) {
       return helpers.task.fromCallback(function (succeed, fail) {
         setTimeout(function () {
           fail(value)
-        }, 10)
+        }, 5)
       })
     },
     taskFromPromise: function (value) {
       return helpers.task.fromPromise(new Promise(function (resolve) {
         setTimeout(function () {
           resolve(value)
-        }, 10)
+        }, 5)
       }))
     },
     taskFromPromiseFail: function (value) {
       return helpers.task.fromPromise(new Promise(function (resolve, reject) {
         setTimeout(function () {
           reject(value)
-        }, 10)
+        }, 5)
       }))
     },
     tupleEmpty: helpers.tuple.empty,

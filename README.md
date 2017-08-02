@@ -5,6 +5,7 @@ Never forget that writing Native or Kernel code in Elm is dangerous. You should 
 - No more Elm specific syntax: break free from all those `_oh$god$Whats$Happening.Here` and stuff like that, it will all be hidden behind a nice and clean API.
 - Create tasks like a boss from callback or promise without copy/pasting all that `scheduler` and `nativeBinding` stuff.
 - No more `AX` and `FX` on most common functions, we will take care of that for you.
+- No more `.ctor`, `._0` or `_1` on basic types.
 - No longer rely on `if (value.ctor === 'Nothing')`, we have better helpers for that.
 
 
@@ -12,11 +13,11 @@ Never forget that writing Native or Kernel code in Elm is dangerous. You should 
 
 - This package is not published in the official Elm registry since it contains Kernel / Native code. You can still install it using [elm-github-install](https://github.com/gdotdesign/elm-github-install) or [elm-proper-install](https://github.com/eeue56/elm-proper-install).
 
-- Do not confuse Elm values and JavaScript values. A JavaScript array is neither an Elm `List` nor Elm `Array`, those a three different data structures. `null` and `undefined` are not the same as `Nothing`. You should probably never use either of them in your code.
+- Do not confuse Elm values and JavaScript values. A JavaScript array is neither an Elm `List` nor Elm `Array`, those a three different data structures. `null` and `undefined` are not the same as `Nothing`, you should probably never use either of them in your code. On the other hand, nearly all primitives are the same (boolean, string, date, record/object), but be sure to floor/round/ceil a JavaScript number if you want an `Int`, otherwise consider it a `Float`.
 
 - If you are missing any documentation on a function, check the [Elm one](http://package.elm-lang.org/packages/elm-lang/core/5.1.1), all those functions are the same as the Elm ones but with a JavaScript syntax.
 
-- Pretty please, don't judge me or hate me for this project. Even if Kernel / Native is not the way to go when you are using Elm, sometime, you just need to write some (even more if you are doing server-side Elm), so you might as well do it with some helpers, right?
+- Pretty please, don't hate me for this project. Even if Kernel / Native is not the way to go when you are using Elm, sometime, you just need to write some (even more if you are doing server-side Elm), so you might as well do it with some helpers, right?
 
 
 ## Usage
@@ -41,7 +42,7 @@ Never forget that writing Native or Kernel code in Elm is dangerous. You should 
 
 **basics.equals(a: Any, b: Any): Bool**
 
-Test if any two Elm values are equals.
+> Test if any two Elm values are equals.
 
 **basics.update(record: Record, updateFields: Object): Record**
 
@@ -66,6 +67,8 @@ Test if any two Elm values are equals.
 > Update a value based on its key
 
 ```javascript
+var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
+
 var dict = helpers.dict.empty
 dict = helpers.dict.insert('key', 'value', dict)
 dict = helpers.dict.update('key', (value) => {
@@ -186,6 +189,10 @@ result = helpers.list.isEmpty(result)
 
 > Convert a list to a JavaScript array. Do not confuse with the Elm Array type.
 
+**list.prepend(value: Any, list: List): List**
+
+> Prepend `value` at the beginning of `list`, just like the `::` operator.
+
 ### maybe
 
 **maybe.nothing: Maybe**
@@ -206,11 +213,7 @@ result = helpers.list.isEmpty(result)
 
 **maybe.isMaybe(value: Maybe): Bool**
 
-> Test if your value is a `Maybe`, either `Just` or `Maybe`.
-
-**maybe.get(value: Maybe): Any**
-
-> If value is a `Just`, will return the value inside it. Otherwise, return `undefined`.
+> Test if your value is a `Maybe`, either `Just` or `Nothing`.
 
 ```javascript
 var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
@@ -219,7 +222,25 @@ helpers.maybe.isNothing(maybe.nothing) // true
 helpers.maybe.isNothing(maybe.just(0)) // false
 helpers.maybe.isJust(maybe.nothing)    // false
 helpers.maybe.isJust(maybe.just('a'))  // true
+helpers.maybe.isMaybe(maybe.nothing)   // true
+helpers.maybe.isMaybe(maybe.just('a')) // true
 ```
+
+**maybe.get(value: Maybe): Any**
+
+> If value is a `Just`, will return the value inside it. Otherwise, return `undefined`.
+
+**maybe.withDefault(default: Any, value: Maybe): Any**
+
+> If value is `Nothing`, return `default`, else return the value inside `Just`.
+
+**maybe.map(mapper: Any -> Any, value: Maybe): Maybe**
+
+> If `value` is a `Just`, apply `mapper` to its wrapped value, otherwise do nothing.
+
+**maybe.andThen(next: Any -> Maybe, value: Maybe): Maybe**
+
+> If `value` is a `Just`, extract its wrapped value, apply `next` to it and return it, otherwise do nothing.
 
 ### result
 
@@ -243,10 +264,6 @@ helpers.maybe.isJust(maybe.just('a'))  // true
 
 > Test if your value is a `Result`, either `Ok` or `Err`.
 
-**result.get(value: Maybe): Any**
-
-> If value is a `Result`, will return the value inside it. Otherwise, return `undefined`.
-
 ```javascript
 var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
 
@@ -254,7 +271,37 @@ helpers.result.isOk(result.ok(0))             // true
 helpers.result.isOk(result.err('you failed')) // false
 helpers.result.isErr(result.ok(true))         // false
 helpers.result.isErr(result.err())            // true
+helpers.result.isResult(result.ok(true))      // true
+helpers.result.isResult(result.err())         // true
 ```
+
+**result.get(value: Maybe): Any**
+
+> If value is a `Result`, will return the value inside it. Otherwise, return `undefined`.
+
+**result.withDefault(default: Any, value: Result): Any**
+
+> If value is `Err`, return `default`, else return the value inside `Ok`.
+
+**result.map(mapper: Any -> Any, value: Result): Result**
+
+> If `value` is a `Ok`, apply `mapper` to its wrapped value, otherwise do nothing.
+
+**result.mapError(mapper: Any -> Any, value: Result): Result**
+
+> If `value` is a `Err`, apply `mapper` to its wrapped value, otherwise do nothing.
+
+**result.andThen(next: Any -> Result, value: Result): Result**
+
+> If `value` is a `Ok`, extract its wrapped value, apply `next` to it and return it, otherwise do nothing.
+
+**result.toMaybe(value: Result): Maybe**
+
+> If `value` is a `Ok`, return a `Just` with the same value inside, otherwise return `Nothing`.
+
+**result.fromMaybe(error: Any, value: Maybe): Result**
+
+> If `value` is `Nothing`, return an `Err` with `error` inside it, otherwise return `Ok` with the wrapped value inside `Just` in it.
 
 ### task
 
