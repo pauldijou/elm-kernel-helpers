@@ -39,6 +39,18 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
     return undefined
   }
 
+  function isThenable(promise) {
+    return (typeof promise['then'] === 'function')
+  }
+
+  function normalizePromise(promise) {
+    return promise.then(function (success) {
+        return { ok: true, value: success }
+      }, function (failure) {
+        return { ok: false, value: failure }
+      })
+  }
+
   return {
     // -------------------------------------------------------------------------
     // BASICS
@@ -205,24 +217,29 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       // after it's already completed and we do not want to catch errors
       // asynchronously
       fromPromise: function fromPromise(promise) {
-        var wrappedPromise =
-          promise
-          .then(function (success) {
-            return { ok: true, value: success }
-          })
-          .catch(function (failure) {
-            return { ok: false, value: failure }
-          })
+        if (isThenable(promise)) {
+          promise = normalizePromise(promise)
+        }
 
         return scheduler.nativeBinding(function (schedulerCallback) {
-          wrappedPromise
-            .then(function (result) {
+          if (typeof promise === 'function') {
+            promise = promise()
+            if (isThenable(promise)) {
+              promise = normalizePromise(promise)
+            }
+          }
+
+          if (isThenable(promise)) {
+            promise.then(function (result) {
               if (result.ok) {
                 schedulerCallback(scheduler.succeed(result.value))
               } else {
                 schedulerCallback(scheduler.fail(result.value))
               }
             })
+          } else {
+            throw new TypeError('Should be a Promise or a function returning a Promise')
+          }
         })
       }
     },

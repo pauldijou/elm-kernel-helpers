@@ -74,6 +74,20 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
         }, 5)
       }))
     },
+    taskFromPromiseFunction: function (value) {
+      return helpers.task.fromPromise(function () { return new Promise(function (resolve) {
+        setTimeout(function () {
+          resolve(value)
+        }, 5)
+      })})
+    },
+    taskFromPromiseFunctionFail: function (value) {
+      return helpers.task.fromPromise(function () { return new Promise(function (resolve, reject) {
+        setTimeout(function () {
+          reject(value)
+        }, 5)
+      })})
+    },
     tupleEmpty: helpers.tuple.empty,
     tuplePair: function (params) { return helpers.tuple.pair(params.first, params.second) },
     tupleFirst: helpers.tuple.first,

@@ -275,6 +275,14 @@ all =
         Native.Tests.taskFromPromiseFail "42"
         |> shouldFailWith "42"
       )
+      , test "fromPromiseFunction success" (
+        Native.Tests.taskFromPromiseFunction "42"
+        |> shouldSucceedWith "42"
+      )
+      , test "fromPromiseFunction failure" (
+        Native.Tests.taskFromPromiseFunctionFail "42"
+        |> shouldFailWith "42"
+      )
       ]
     , describe "tuple"
       [ test "empty" (

@@ -338,9 +338,9 @@ function doStuff() {
 }
 ```
 
-**task.fromPromise(promise: Promise): Task**
+**task.fromPromise(promise: Promise | Function): Task**
 
-> Create a task from a JavaScript `Promise`. If the promise succeed, the task will succeed, otherwise, both will fail.
+> Create a task from a JavaScript `Promise`. If the promise succeed, the task will succeed, otherwise, both will fail. If you pass a `function`, it will be called when the task is actually started and should return a `Promise` (which will be wrapped as a task)
 
 ```javascript
 var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
