@@ -8,7 +8,7 @@
     "test"
   ],
   "exposed-modules": [
-    "Native.Kernel.Helpers"
+    "Kernel.Helpers"
   ],
   "native-modules": true,
   "dependencies": {
