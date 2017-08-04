@@ -7,7 +7,9 @@
     "src",
     "test"
   ],
-  "exposed-modules": [],
+  "exposed-modules": [
+    "Native.Kernel.Helpers"
+  ],
   "native-modules": true,
   "dependencies": {
     "elm-lang/core": "5.0.0 <= v < 6.0.0",
