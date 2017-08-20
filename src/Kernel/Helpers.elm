@@ -1,13 +1,13 @@
-module Kernel.Helpers exposing (removeWarnings)
+module Kernel.Helpers exposing (noWarnings)
 
 {-| Add kernel / native helpers on your JavaScript
 
-@docs removeWarnings
+@docs noWarnings
 
 -}
 
 import Native.Kernel.Helpers
 
 {-| Use this useless constant to remove warnings from elm-make -}
-removeWarnings: String
-removeWarnings = ""
+noWarnings: String
+noWarnings = ""
