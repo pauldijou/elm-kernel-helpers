@@ -5,7 +5,7 @@ import Task
 
 import Ordeal exposing (..)
 
-import Native.Kernel.Helpers
+import Kernel.Helpers
 import Native.Tests
 
 main: Ordeal

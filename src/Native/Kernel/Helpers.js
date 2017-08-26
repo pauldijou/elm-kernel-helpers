@@ -269,6 +269,7 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
   }
 
   return {
+    noWarnings: '',
     // -------------------------------------------------------------------------
     // CONFIG
     strict: function (value) {

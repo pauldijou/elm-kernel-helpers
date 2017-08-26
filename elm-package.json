@@ -18,7 +18,7 @@
   "dependency-sources": {
     "pauldijou/elm-ordeal": {
       "url": "git@github.com:pauldijou/elm-ordeal.git",
-      "ref": "2a0009d6a926fc2e80df1febd32ef554aad5aa00"
+      "ref": "b6996010910e617555afe0ff4407f6a66b0801c9"
     }
   },
   "elm-version": "0.18.0 <= v < 0.19.0"
