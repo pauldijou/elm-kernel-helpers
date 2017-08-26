@@ -19,6 +19,17 @@ Never forget that writing Native or Kernel code in Elm is dangerous. You should 
 
 - Pretty please, don't hate me for this project. Even if Kernel / Native is not the way to go when you are using Elm, sometime, you just need to write some (even more if you are doing server-side Elm), so you might as well do it with some helpers, right?
 
+## Strict mode
+
+By default, the helpers will try to catch as much potential errors as possible. For example, if you try to call `Result.fromMaybe` with an argument that isn't actually a `Maybe`, it will thrown a `TypeError`. There are a huge lot of limitations of course, we cannot know the type of a `List` as long as it is empty, we cannot determine if several types are part of the same union type without parsing the actual Elm code (and there are no plan at all to do that).
+
+Anyway, it's good for you but far from perfect and in any case, disable it in production, some checks are long and it's too late to catch them.
+
+```javascript
+helpers.strict(false)
+```
+
+By the way, want to know what's cool? If you are using Elm libs which are also using `elm-kernel-helpers`, disabling it once in your production app will disable it for all libs using it. Pretty sweet right?
 
 ## Usage
 

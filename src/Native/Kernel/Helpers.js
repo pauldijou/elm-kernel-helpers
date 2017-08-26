@@ -32,7 +32,7 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
 
   var coreDictIsEmpty = _elm_lang$core$Dict$isEmpty
   var coreDictKeys = _elm_lang$core$Dict$keys
-  var coreDictValues = _elm_lang$core$Dict$Values
+  var coreDictValues = _elm_lang$core$Dict$values
 
   // -------------------------------------------------------------------------
   // LIST
@@ -131,7 +131,8 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
   // -------------------------------------------------------------------------
   // CHECKS
   function isRecord(record) {
-    return record instanceof Object
+    return (record instanceof Object) &&
+      (ctorOf(record) === undefined)
   }
 
   function isString(value) {
@@ -142,7 +143,7 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
     return isFloat(value) &&
       (-2147483647 < value) &&
       (value < 2147483647) &&
-      (value | 0) === value)
+      ((value | 0) === value)
   }
 
   function isFloat(value) {
@@ -182,6 +183,18 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       return isRecord(b) &&
         (Object.keys(a).length === Object.keys(b).length) &&
         Object.keys(a).reduce(function (acc, key) { return acc && isSame(a[key], b[key]) }, true)
+    }
+
+    if (isTuple(a)) {
+      return isTuple(b) &&
+        (Object.keys(a).length === Object.keys(b).length) &&
+        Object.keys(a).reduce(function (acc, key) {
+          return key === ctorKey ? acc : acc && isSame(a[key], b[key])
+        }, true)
+    }
+
+    if (isTask(a)) {
+      return isTask(b)
     }
 
     return true
@@ -275,7 +288,15 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
         }
         return _elm_lang$core$Native_Utils.update(record, patch)
       },
-      toString: _elm_lang$core$Native_Utils.toString
+      toString: _elm_lang$core$Native_Utils.toString,
+      order: {
+        lt: _elm_lang$core$Basics$LT,
+        eq: _elm_lang$core$Basics$EQ,
+        gt: _elm_lang$core$Basics$GT
+      },
+      compare: function basicsCompare(x, y) {
+        return A2(_elm_lang$core$Basics$compare, x, y)
+      }
     },
     // -------------------------------------------------------------------------
     // DICT
@@ -444,6 +465,11 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
         if (strict) { checkMaybe(maybe); checkFunction(onNothing); checkFunction(onJust) }
         if (isJust(maybe)) { return onJust(maybeGetImpl(maybe)) }
         return onNothing()
+      },
+      parse: function maybeParse(value) {
+        if (value === null || value === undefined) { return Nothing }
+        if (typeof value === 'number' && isNaN(value)) { return Nothing }
+        return Just(value)
       }
     },
     // -------------------------------------------------------------------------
@@ -486,7 +512,6 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
         if (strict) { checkResult(result); checkFunction(onErr); checkFunction(onOk) }
         if (isErr(result)) { return onErr(resultGetImpl(result)) }
         if (isOk(result))  { return onOk(resultGetImpl(result)) }
-        return undefined
       }
     },
     // -------------------------------------------------------------------------
