@@ -1,6 +1,7 @@
 var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
   var strict = true
   var ctorKey = 'ctor'
+  var debug = false
 
   var scheduler = _elm_lang$core$Native_Scheduler
 
@@ -155,15 +156,13 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
   }
 
   function isSame(a, b) {
-    if (
-      (a === b) ||
-      (a === undefined && b === undefined) ||
-      (a === null && b === null) ||
-      (isString(a) && isString(b)) ||
-      (isInt(a) && isInt(b)) ||
-      (isFloat(a) && isFloat(b)) ||
-      (isBool(a) && isBool(b))
-    ) { return true }
+    if (a === b) { return true }
+    if (a === undefined) { return b === undefined }
+    if (a === null) { return b === null }
+    if (isString(a)) { return isString(b) }
+    if (isInt(a)) { return isInt(b) }
+    if (isFloat(a)) { return isFloat(b) }
+    if (isBool(a)) { return isBool(b) }
 
     if (isNothing(a)) { return isMaybe(b) }
     if (isJust(a)) { return isNothing(b) || (isJust(b) && isSame(maybeGetImpl(a), maybeGetImpl(b))) }
@@ -215,6 +214,10 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
     if (!isSame(value1, value2)) {
       throw new TypeError('Expected both values to be the same but first one was ' + stringify(value1) + ', while second one was ' + stringify(value2))
     }
+  }
+
+  function checkString(value) {
+    if (!isString(value)) { throw new TypeError('Expected a string, got: ' + stringify(value)) }
   }
 
   function checkFunction(value) {
@@ -281,9 +284,20 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       ctorOf: ctorOf,
       scheduler: scheduler,
       equals: _elm_lang$core$Native_Utils.eq,
+      create: function basicsCreate() {
+        var result = {}
+        for (var i = 0; i < arguments.length; ++i) {
+          if (strict) { checkString(arguments[0]) }
+          result[i === 0 ? ctorKey : '_' + (i - 1)] = arguments[i]
+        }
+        return result
+      },
       update: function basicsUpdate(record, patch) {
         if (strict) {
           Object.keys(patch).forEach(function (key) {
+            if (!record.hasOwnProperty(key)) {
+              throw new TypeError('Cannot update record since it does not have property named: ' + key)
+            }
             checkSame(record[key], patch[key])
           })
         }

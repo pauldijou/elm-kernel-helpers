@@ -13,6 +13,8 @@ main = run emit tests
 
 port emit : Event -> Cmd msg
 
+type Foo = Bar Int String | Baz Bool
+
 tests: Test
 tests =
   describe "Helpers"
@@ -27,22 +29,43 @@ tests =
       )
       , test "equals" (
         all
-          [ Native.Tests.equals { first = { a = "a", b = 1 }, second = { b = 1, a = "a" } }
-            |> shouldEqual True
-          , Native.Tests.equals { first = 1, second = 2 }
-            |> shouldEqual False
-          , Native.Tests.equals { first = True, second = 1 }
-            |> shouldEqual False
-          ]
+        [ Native.Tests.equals { first = { a = "a", b = 1 }, second = { b = 1, a = "a" } }
+          |> shouldEqual True
+        , Native.Tests.equals { first = 1, second = 2 }
+          |> shouldEqual False
+        , Native.Tests.equals { first = True, second = 1 }
+          |> shouldEqual False
+        ]
+      )
+      , test "create" (
+        all
+        [ Native.Tests.createBar |> shouldEqual (Bar 1 "something")
+        , Native.Tests.createBaz |> shouldEqual (Baz False)
+        , Native.Tests.crashIt (\_ -> Native.Tests.create 1) |> shouldBeOk
+        ]
+      )
+      , test "update" (
+        all
+        [ Native.Tests.update { record = { a = 1, b = "b" }, patch = { a = 2 } }
+          |> shouldEqual { a = 2, b = "b" }
+        , Native.Tests.crashIt (\_ ->
+            Native.Tests.update { record = { a = 1, b = "b" }, patch = { a = "a" } }
+          )
+          |> shouldBeOk
+        , Native.Tests.crashIt (\_ ->
+            Native.Tests.update { record = { a = 1, b = "b" }, patch = { c = "a" } }
+          )
+          |> shouldBeOk
+        ]
       )
       , test "toString" (
         all
-          [ Native.Tests.toString 1 |> shouldEqual "1"
-          , Native.Tests.toString 4.2 |> shouldEqual "4.2"
-          , Native.Tests.toString "a" |> shouldEqual "\"a\""
-          , Native.Tests.toString True |> shouldEqual "True"
-          , Native.Tests.toString False |> shouldEqual "False"
-          ]
+        [ Native.Tests.toString 1 |> shouldEqual "1"
+        , Native.Tests.toString 4.2 |> shouldEqual "4.2"
+        , Native.Tests.toString "a" |> shouldEqual "\"a\""
+        , Native.Tests.toString True |> shouldEqual "True"
+        , Native.Tests.toString False |> shouldEqual "False"
+        ]
       )
       ]
     , describe "dict"
@@ -170,6 +193,15 @@ tests =
           Native.Tests.maybe_caseOf { maybe = Just 1, onNothing = (\_ -> 3), onJust = (\v -> v + 1)}
           |> shouldEqual 2
         )
+      )
+      , test "parse" (
+        all
+        [ Native.Tests.maybe_parse Native.Tests.undefined |> shouldBeNothing
+        , Native.Tests.maybe_parse Native.Tests.null |> shouldBeNothing
+        , Native.Tests.maybe_parse Native.Tests.nan |> shouldBeNothing
+        , Native.Tests.maybe_parse 1 |> shouldEqual (Just 1)
+        , Native.Tests.maybe_parse "a" |> shouldEqual (Just "a")
+        ]
       )
       ]
     , describe "result"

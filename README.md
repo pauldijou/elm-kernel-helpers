@@ -1,17 +1,17 @@
 # elm-kernel-helpers
 
-Never forget that writing Native or Kernel code in Elm is dangerous. You should try to avoid it as much as possible. But if you really need to, this package will help you doing it.
+Never forget that writing Native or Kernel code in Elm is dangerous. You should try to avoid it as much as possible. But if you really need to (missing web APIs, server-side code, ...), this package will help you doing it.
 
 - No more Elm specific syntax: break free from all those `_oh$god$Whats$Happening.Here` and stuff like that, it will all be hidden behind a nice and clean API.
 - Create tasks like a boss from callback or promise without copy/pasting all that `scheduler` and `nativeBinding` stuff.
 - No more `AX` and `FX` on most common functions, we will take care of that for you.
 - No more `.ctor`, `._0` or `_1` on basic types.
-- No longer rely on `if (value.ctor === 'Nothing')`, we have better helpers for that.
+- No longer rely on stuff like `if (value.ctor === 'Nothing')`, we have better helpers for that.
 
 
 ## Be aware of...
 
-- This package is not published in the official Elm registry since it contains Kernel / Native code. You can still install it using [elm-github-install](https://github.com/gdotdesign/elm-github-install) or [elm-proper-install](https://github.com/eeue56/elm-proper-install).
+- This package is not published in the official Elm registry since it contains Kernel / Native code. You can still install it using [elm-github-install](https://github.com/gdotdesign/elm-github-install).
 
 - Do not confuse Elm values and JavaScript values. A JavaScript array is neither an Elm `List` nor Elm `Array`, those a three different data structures. `null` and `undefined` are not the same as `Nothing`, you should probably never use either of them in your code. On the other hand, nearly all primitives are the same (boolean, string, date, record/object), but be sure to floor/round/ceil a JavaScript number if you want an `Int`, otherwise consider it a `Float`.
 
@@ -21,9 +21,9 @@ Never forget that writing Native or Kernel code in Elm is dangerous. You should 
 
 ## Strict mode
 
-By default, the helpers will try to catch as much potential errors as possible. For example, if you try to call `Result.fromMaybe` with an argument that isn't actually a `Maybe`, it will thrown a `TypeError`. There are a huge lot of limitations of course, we cannot know the type of a `List` as long as it is empty, we cannot determine if several types are part of the same union type without parsing the actual Elm code (and there are no plan at all to do that).
+By default, the helpers will try to catch as much potential errors as possible. For example, if you try to call `Result.fromMaybe` with an argument that isn't actually a `Maybe`, it will throw a `TypeError`. There are a huge lot of limitations of course, we cannot know the type of a `List` as long as it is empty, we cannot determine if several types are part of the same union type without parsing the actual Elm code (and there is no plan at all to do that).
 
-Anyway, it's good for you but far from perfect and in any case, disable it in production, some checks are long and it's too late to catch them.
+Anyway, it's good for you but far from perfect and, in any case, disable it in production, some checks are long and it's too late to catch them.
 
 ```javascript
 helpers.strict(false)
@@ -34,9 +34,10 @@ By the way, want to know what's cool? If you are using Elm libs which are also u
 ## Usage
 
 1. Add `pauldijou/elm-kernel-helpers` as a dependency inside your `elm-package.json`
-2. Add `import Native.Kernel.Helpers` inside modules with Kernel / Native code needing them
-3. Import the helpers inside your native using `var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers`
-4. Enjoy all the following helpers...
+2. Add `import Kernel.Helpers` inside modules with Kernel / Native code needing them
+3. If you need to get rid of warnings for `unused import`, you can always use `Kernel.Helpers.noWarnings` constant, which returns an empty string.
+4. Import the helpers inside your native code using `var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers`
+5. Enjoy all the following helpers...
 
 
 ## API
@@ -45,7 +46,7 @@ By the way, want to know what's cool? If you are using Elm libs which are also u
 
 **basics.ctorOf(value): undefined | string**
 
-> Try to retrieve the `ctor` or `constructor type` of an Elm value, mostly work for union types and some other specific types. For example, `ctorOf(maybe.nothing)` will return `'Nothing'`, `ctorOf(list.empty)` will return `[]`, but `ctorOf(<an elm record>)` will return `undefined` since records does not have a `ctor`.
+> Try to retrieve the `ctor` or `constructor type` of an Elm value, mostly work for union types and some other specific types. For example, `ctorOf(maybe.nothing)` will return `'Nothing'`, `ctorOf(list.empty)` will return `'[]'`, but `ctorOf(<an elm record>)` will return `undefined` since records does not have a `ctor`.
 
 **basics.scheduler: Scheduler**
 
@@ -54,6 +55,18 @@ By the way, want to know what's cool? If you are using Elm libs which are also u
 **basics.equals(a: Any, b: Any): Bool**
 
 > Test if any two Elm values are equals.
+
+**create(string, args...): Union Type**
+
+> Create a union type value based on its name and arguments
+
+```elm
+type Foo = Bar Int String
+```
+
+```javascript
+helpers.basics.create('Bar', 5, 'something')
+```
 
 **basics.update(record: Record, updateFields: Object): Record**
 

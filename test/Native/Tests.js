@@ -2,10 +2,20 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
   var helpers = _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers
 
   return {
+    undefined: undefined,
+    null: null,
+    nan: NaN,
     jsArray: [ 1, 2, 3 ],
     ctorOf: helpers.basics.ctorOf,
     equals: function (params) { return helpers.basics.equals(params.first, params.second) },
+    create: helpers.basics.create,
+    createBar: helpers.basics.create('Bar', 1, 'something'),
+    createBaz: helpers.basics.create('Baz', false),
     update: function (params) { return helpers.basics.update(params.record, params.patch) },
+    crashIt: function (fn) {
+      try { fn(); return helpers.result.err('Did not crash...') }
+      catch (e) { return helpers.result.ok(e) }
+    },
     toString: helpers.basics.toString,
     dictEmpty: helpers.dict.empty,
     dictInsert: function (params) {
@@ -31,6 +41,7 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
     maybe_map: function (params) { return helpers.maybe.map(params.mapper, params.maybe) },
     maybe_andThen: function (params) { return helpers.maybe.andThen(params.next, params.maybe) },
     maybe_caseOf: function (params) { return helpers.maybe.caseOf(params.maybe, params.onNothing, params.onJust) },
+    maybe_parse: helpers.maybe.parse,
     resultOk: helpers.result.ok,
     resultErr: helpers.result.err,
     resultIsOk: helpers.result.isOk,
