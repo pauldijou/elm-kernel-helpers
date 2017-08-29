@@ -8,9 +8,10 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
     jsArray: [ 1, 2, 3 ],
     ctorOf: helpers.basics.ctorOf,
     equals: function (params) { return helpers.basics.equals(params.first, params.second) },
-    create: helpers.basics.create,
-    createBar: helpers.basics.create('Bar', 1, 'something'),
-    createBaz: helpers.basics.create('Baz', false),
+    create: helpers.basics.union.create,
+    createBar: helpers.basics.union.create('Bar', 1, 'something'),
+    createBaz: helpers.basics.union.create('Baz', false),
+    basics_union_at: function (params) { return helpers.basics.union.at(params.value, params.index) },
     update: function (params) { return helpers.basics.update(params.record, params.patch) },
     crashIt: function (fn) {
       try { fn(); return helpers.result.err('Did not crash...') }

@@ -12,6 +12,10 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
     return undefined
   }
 
+  function indexToUnionKey(idx) {
+    return '_' + idx
+  }
+
   function stringify(value) {
     try {
       return _elm_lang$core$Native_Utils.toString(value)
@@ -284,14 +288,6 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       ctorOf: ctorOf,
       scheduler: scheduler,
       equals: _elm_lang$core$Native_Utils.eq,
-      create: function basicsCreate() {
-        var result = {}
-        for (var i = 0; i < arguments.length; ++i) {
-          if (strict) { checkString(arguments[0]) }
-          result[i === 0 ? ctorKey : '_' + (i - 1)] = arguments[i]
-        }
-        return result
-      },
       update: function basicsUpdate(record, patch) {
         if (strict) {
           Object.keys(patch).forEach(function (key) {
@@ -311,6 +307,19 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
       },
       compare: function basicsCompare(x, y) {
         return A2(_elm_lang$core$Basics$compare, x, y)
+      },
+      union: {
+        create: function basicsCreate() {
+          var result = {}
+          for (var i = 0; i < arguments.length; ++i) {
+            if (strict) { checkString(arguments[0]) }
+            result[i === 0 ? ctorKey : '_' + (i - 1)] = arguments[i]
+          }
+          return result
+        },
+        at: function (unionType, idx) {
+          return unionType[indexToUnionKey(idx)]
+        }
       }
     },
     // -------------------------------------------------------------------------

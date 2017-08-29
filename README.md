@@ -56,7 +56,15 @@ By the way, want to know what's cool? If you are using Elm libs which are also u
 
 > Test if any two Elm values are equals.
 
-**create(string, args...): Union Type**
+**basics.update(record: Record, updateFields: Object): Record**
+
+> Create a new record from the 1st argument `record`, updating only the fields from `updateFields`. Similar to `Object.assign` but immutable.
+
+**toString(value: Any): String**
+
+> Convert any Elm value to the "best" possible string. This is not serialization but more for debugging and `console.log` stuff.
+
+**basics.union.create(ctor: string, values: args...): Union Type**
 
 > Create a union type value based on its name and arguments
 
@@ -68,13 +76,21 @@ type Foo = Bar Int String
 helpers.basics.create('Bar', 5, 'something')
 ```
 
-**basics.update(record: Record, updateFields: Object): Record**
+**basics.union.at(unionType: any, index: int): any**
 
-> Create a new record from the 1st argument `record`, updating only the fields from `updateFields`. Similar to `Object.assign` but immutable.
+> Retrieve the argument at the specified index
 
-**toString(value: Any): String**
+```elm
+type Foo = Bar Int String
 
-> Convert any Elm value to the "best" possible string. This is not serialization but more for debugging and `console.log` stuff.
+value: Foo
+value = Bar 42 "hey there"
+```
+
+```javascript
+helpers.basics.union.at(value, 0) // returns 42
+helpers.basics.union.at(value, 1) // returns 'hey there'
+```
 
 ### dict
 

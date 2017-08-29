@@ -15,6 +15,9 @@ port emit : Event -> Cmd msg
 
 type Foo = Bar Int String | Baz Bool
 
+value: Foo
+value = Bar 42 "hey there"
+
 tests: Test
 tests =
   describe "Helpers"
@@ -37,11 +40,17 @@ tests =
           |> shouldEqual False
         ]
       )
-      , test "create" (
+      , test "union.create" (
         all
         [ Native.Tests.createBar |> shouldEqual (Bar 1 "something")
         , Native.Tests.createBaz |> shouldEqual (Baz False)
         , Native.Tests.crashIt (\_ -> Native.Tests.create 1) |> shouldBeOk
+        ]
+      )
+      , test "union.at" (
+        all
+        [ Native.Tests.basics_union_at { value = value, index = 0 } |> shouldEqual 42
+        , Native.Tests.basics_union_at { value = value, index = 1 } |> shouldEqual "hey there"
         ]
       )
       , test "update" (
