@@ -8,8 +8,7 @@
     "test"
   ],
   "exposed-modules": [
-    "Kernel.Helpers",
-    "Native.Kernel.Helpers"
+    "Kernel.Helpers"
   ],
   "native-modules": true,
   "dependencies": {
@@ -18,7 +17,7 @@
   },
   "dependency-sources": {
     "pauldijou/elm-ordeal": {
-      "url": "git@github.com:pauldijou/elm-ordeal.git",
+      "url": "https://github.com/pauldijou/elm-ordeal.git",
       "ref": "b6996010910e617555afe0ff4407f6a66b0801c9"
     }
   },
