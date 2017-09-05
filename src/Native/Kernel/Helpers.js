@@ -417,7 +417,7 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
     // -------------------------------------------------------------------------
     // LIST
     list: {
-      isList, isList,
+      isList: isList,
       empty: Nil,
       singleton: _elm_lang$core$List$singleton,
       isEmpty: function listIsEmpty(list) {
