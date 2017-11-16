@@ -1,7 +1,10 @@
 {
   "scripts": {
     "deps": "elm-install",
-    "test": "elm-ordeal test/HelpersTest.elm"
+    "test": "yarn build:emptyApp && yarn test:emptyApp && yarn test:helpers",
+    "test:helpers": "elm-ordeal test/HelpersTest.elm",
+    "test:emptyApp": "node ./test/emptyApp.js",
+    "build:emptyApp": "elm-make test/EmptyAppTest.elm --output=./dist/EmptyAppTest.js"
   },
   "devDependencies": {
     "elm": "^0.18.0",

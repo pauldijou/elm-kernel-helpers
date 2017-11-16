@@ -103,6 +103,13 @@ var _pauldijou$elm_kernel_helpers$Native_Tests = function () {
     tupleEmpty: helpers.tuple.empty,
     tuplePair: function (params) { return helpers.tuple.pair(params.first, params.second) },
     tupleFirst: helpers.tuple.first,
-    tupleSecond: helpers.tuple.second
+    tupleSecond: helpers.tuple.second,
+    emptyApp: function () {
+      if (Object.keys(helpers.dict).length > 0) {
+        throw new Error('We didn\'t import Dict module, should not have dict helpers')
+      }
+      // Right now, all other modules are default imported so present
+      return 1;
+    }
   }
 }()

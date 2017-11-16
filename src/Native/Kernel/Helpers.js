@@ -1,9 +1,28 @@
 var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
   var strict = true
-  var ctorKey = 'ctor'
-  var debug = false
 
-  var scheduler = _elm_lang$core$Native_Scheduler
+
+
+  // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // UTILS
+  var hasNativeUtils = typeof _elm_lang$core$Native_Utils !== 'undefined'
+  var hasDictModule = typeof _elm_lang$core$Dict$empty !== 'undefined'
+  var hasListModule = typeof _elm_lang$core$List$singleton !== 'undefined'
+  var hasMaybeModule = typeof _elm_lang$core$Maybe$Nothing !== 'undefined'
+  var hasResultModule = typeof _elm_lang$core$Result$Ok !== 'undefined'
+  var hasTaskModule = typeof _elm_lang$core$Native_Scheduler !== 'undefined'
+  var hasTupleModule = true
+
+
+
+  // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // SCHEDULER & TASKS
+
+  var scheduler = hasTaskModule ? _elm_lang$core$Native_Scheduler : undefined
+
+  var ctorKey = 'ctor'
 
   function ctorOf(value) {
     if (typeof value === 'object') {
@@ -24,267 +43,9 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
     }
   }
 
-  // -------------------------------------------------------------------------
-  // DICT
-  var DictEmpty = _elm_lang$core$Dict$empty
-  var DictSingleton = A3(_elm_lang$core$Dict$insert, 'a', 'b', DictEmpty)
-  var DictEmptyCtor = ctorOf(DictEmpty)
-  var DictSingletonCtor = ctorOf(DictSingleton)
-
-  function isDict(dict) {
-    return ctorOf(dict) === DictEmptyCtor || ctorOf(dict) === DictSingletonCtor
-  }
-
-  var coreDictIsEmpty = _elm_lang$core$Dict$isEmpty
-  var coreDictKeys = _elm_lang$core$Dict$keys
-  var coreDictValues = _elm_lang$core$Dict$values
-
-  // -------------------------------------------------------------------------
-  // LIST
-  var Nil = _elm_lang$core$Native_List.Nil
-  var Cons = _elm_lang$core$Native_List.Cons
-  var NilCtor = ctorOf(_elm_lang$core$Native_List.Nil)
-  var ListSingletonCtor = ctorOf(_elm_lang$core$List$singleton(1))
-
-  function isList(list) {
-    return ctorOf(list) === NilCtor || ctorOf(list) === ListSingletonCtor
-  }
-
-  function listAll(predicate, list) {
-    if (strict) { checkFunction(predicate); checkList(list) }
-    return A2(_elm_lang$core$List$all, predicate, list)
-  }
-
-  var coreListIsEmpty = _elm_lang$core$List$isEmpty
-  var coreListHead = _elm_lang$core$List$head
-
-  // -------------------------------------------------------------------------
-  // MAYBE
-  var Nothing = _elm_lang$core$Maybe$Nothing
-  var Just = _elm_lang$core$Maybe$Just
-  var NothingCtor = ctorOf(Nothing)
-  var JustCtor = ctorOf(Just(0))
-
-  function isNothing(value) { return ctorOf(value) === NothingCtor }
-  function isJust(value)    { return ctorOf(value) === JustCtor }
-  function isMaybe(value)   { return isNothing(value) || isJust(value) }
-
-  function maybeGetImpl(value) {
-    if (isJust(value)) { return value._0 }
-    return undefined
-  }
-
-  // -------------------------------------------------------------------------
-  // RESULT
-  var Ok = _elm_lang$core$Result$Ok
-  var Err = _elm_lang$core$Result$Err
-  var OkCtor = ctorOf(Ok(0))
-  var ErrCtor = ctorOf(Err(0))
-
-  function isOk(value)     { return ctorOf(value) === OkCtor }
-  function isErr(value)    { return ctorOf(value) === ErrCtor }
-  function isResult(value) { return isOk(value) || isErr(value) }
-
-  function resultGetImpl(value) {
-    if (isResult(value)) { return value._0 }
-    return undefined
-  }
-
-  // -------------------------------------------------------------------------
-  // TASK
-  function isThenable(promise) {
-    return (promise && typeof promise['then'] === 'function')
-  }
-
-  function normalizePromise(promise) {
-    return promise.then(function (success) {
-        return { ok: true, value: success }
-      }, function (failure) {
-        return { ok: false, value: failure }
-      })
-  }
-
-  function isTask(task) {
-    return (ctorOf(task) || '').indexOf('_Task_') === 0
-  }
-
-  // -------------------------------------------------------------------------
-  // TUPLE
-  function tuplePair(a, b) {
-    return _elm_lang$core$Native_Utils.Tuple2(a, b)
-  }
-
-  var Tuple2 = tuplePair(1, 2)
-  var Tuple2Ctor = ctorOf(Tuple2)
-
-  function isTuple2(tuple) {
-    return ctorOf(tuple) === Tuple2Ctor
-  }
-
-  function isTuple(tuple) {
-    return (ctorOf(tuple) || '').indexOf('_Tuple') === 0
-  }
-
-  // private function
-  function tupleAll(predicate, tuple) {
-    return Object.keys(tuple).reduce(function (res, key) {
-      if (key === ctorKey) { return res }
-      return res && predicate(tuple[key])
-    }, true)
-  }
-
-  // -------------------------------------------------------------------------
-  // CHECKS
-  function isRecord(record) {
-    return (record instanceof Object) &&
-      (ctorOf(record) === undefined)
-  }
-
-  function isString(value) {
-    return typeof value === 'string'
-  }
-
-  function isInt(value) {
-    return isFloat(value) &&
-      (-2147483647 < value) &&
-      (value < 2147483647) &&
-      ((value | 0) === value)
-  }
-
-  function isFloat(value) {
-    return (typeof value === 'number') && (!isNaN(value))
-  }
-
-  function isBool(value) {
-    return typeof value === 'boolean'
-  }
-
-  function isSame(a, b) {
-    if (a === b) { return true }
-    if (a === undefined) { return b === undefined }
-    if (a === null) { return b === null }
-    if (isString(a)) { return isString(b) }
-    if (isInt(a)) { return isInt(b) }
-    if (isFloat(a)) { return isFloat(b) }
-    if (isBool(a)) { return isBool(b) }
-
-    if (isNothing(a)) { return isMaybe(b) }
-    if (isJust(a)) { return isNothing(b) || (isJust(b) && isSame(maybeGetImpl(a), maybeGetImpl(b))) }
-
-    if (isOk(a)) { return isErr(b) || (isOk(b) && isSame(resultGetImpl(a), resultGetImpl(b))) }
-    if (isErr(a)) { return isOk(b) || (isErr(b) && isSame(resultGetImpl(a), resultGetImpl(b))) }
-
-    if (isList(a)) {
-      return isList(b) && isSame(coreListHead(a), coreListHead(b))
-    }
-
-    if (isDict(a)) {
-      return isDict(b) && isSame(coreDictKeys(a), coreDictKeys(b)) && isSame(coreDictValues(a), coreDictValues(b))
-    }
-
-    if (isRecord(a)) {
-      return isRecord(b) &&
-        (Object.keys(a).length === Object.keys(b).length) &&
-        Object.keys(a).reduce(function (acc, key) { return acc && isSame(a[key], b[key]) }, true)
-    }
-
-    if (isTuple(a)) {
-      return isTuple(b) &&
-        (Object.keys(a).length === Object.keys(b).length) &&
-        Object.keys(a).reduce(function (acc, key) {
-          return key === ctorKey ? acc : acc && isSame(a[key], b[key])
-        }, true)
-    }
-
-    if (isTask(a)) {
-      return isTask(b)
-    }
-
-    return true
-  }
-
-  function isComparable(value) {
-    return isString(value)
-      || isFloat(value)
-      || (isList(value) && listAll(isComparable, value))
-      || (isTuple(value) && tupleAll(isComparable, value))
-  }
-
-  function isFunction(value) {
-    return typeof value === 'function'
-  }
-
-  function checkSame(value1, value2) {
-    if (!isSame(value1, value2)) {
-      throw new TypeError('Expected both values to be the same but first one was ' + stringify(value1) + ', while second one was ' + stringify(value2))
-    }
-  }
-
-  function checkString(value) {
-    if (!isString(value)) { throw new TypeError('Expected a string, got: ' + stringify(value)) }
-  }
-
-  function checkFunction(value) {
-    if (!isFunction(value)) { throw new TypeError('Expected a function, got: ' + stringify(value)) }
-  }
-
-  function checkComparable(value) {
-    if (!isComparable(value)) { throw new TypeError('Expected a comparable value, got: ' + stringify(value)) }
-  }
-
-  function checkList(value) {
-    if (!isList(value)) { throw new TypeError('Expected a List, got: ' + stringify(value)) }
-  }
-
-  function checkListValue(value, list) {
-    var head = coreListHead(list)
-    if (isJust(head)) { checkSame(value, maybeGetImpl(head)) }
-  }
-
-  function checkDict(value) {
-    if (!isDict(value)) { throw new TypeError('Expected a Dict, got: ' + stringify(value)) }
-  }
-
-  function checkDictKey(key, dict) {
-    var firstKey = coreListHead(coreDictKeys(dict))
-    if (isJust(firstKey)) { checkSame(key, maybeGetImpl(firstKey)) }
-  }
-
-  function checkDictValue(value, dict) {
-    var firstValue = coreListHead(coreDictValues(dict))
-    if (isJust(firstValue)) { checkSame(value, maybeGetImpl(firstValue)) }
-  }
-
-  function checkMaybe(value) {
-    if (!isMaybe(value)) { throw new TypeError('Expected a Maybe, got: ' + stringify(value)) }
-  }
-
-  function checkResult(value) {
-    if (!isResult(value)) { throw new TypeError('Expected a Result, got: ' + stringify(value)) }
-  }
-
-  function checkTask(value) {
-    if (!isTask(value)) { throw new TypeError('Expected a Task, got: ' + stringify(value)) }
-  }
-
-  function checkTuple2(value) {
-    if (!isTuple2(value)) { throw new TypeError('Expected a Tuple2, got: ' + stringify(value)) }
-  }
-
-  function checkJsArray(value) {
-    if (!Array.isArray(value)) { throw new TypeError('Expected a JavaScript array, got: ' + stringify(value)) }
-  }
-
-  return {
-    noWarnings: '',
-    // -------------------------------------------------------------------------
-    // CONFIG
-    strict: function (value) {
-      strict = value
-    },
-    // -------------------------------------------------------------------------
-    // BASICS
-    basics: {
+  var basicsHelpers =
+    !hasNativeUtils ? {} :
+    {
       ctorOf: ctorOf,
       scheduler: scheduler,
       equals: _elm_lang$core$Native_Utils.eq,
@@ -321,10 +82,30 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
           return unionType[indexToUnionKey(idx)]
         }
       }
-    },
-    // -------------------------------------------------------------------------
-    // DICT
-    dict: {
+    }
+
+
+
+  // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // DICT
+  var DictEmpty = hasDictModule && _elm_lang$core$Dict$empty
+  var DictSingleton = hasDictModule && A3(_elm_lang$core$Dict$insert, 'a', 'b', DictEmpty)
+  var DictEmptyCtor = hasDictModule && ctorOf(DictEmpty)
+  var DictSingletonCtor = hasDictModule && ctorOf(DictSingleton)
+
+  function isDict(dict) {
+    return ctorOf(dict) === DictEmptyCtor
+        || ctorOf(dict) === DictSingletonCtor
+  }
+
+  var coreDictIsEmpty = hasDictModule && _elm_lang$core$Dict$isEmpty
+  var coreDictKeys = hasDictModule && _elm_lang$core$Dict$keys
+  var coreDictValues = hasDictModule && _elm_lang$core$Dict$values
+
+  var dictHelpers =
+    !hasDictModule ? {} :
+    {
       isDict: isDict,
       empty: DictEmpty,
       singleton: function dictSingleton(key, value) {
@@ -413,10 +194,34 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
         if (strict) { checkFunction(left); checkFunction(both); checkFunction(right); checkDict(leftDict); checkDict(rightDict) }
         return A6(_elm_lang$core$Dict$merge, left, both, right, leftDict, rightDict, acc)
       }
-    },
-    // -------------------------------------------------------------------------
-    // LIST
-    list: {
+    }
+
+
+
+  // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // LIST
+  var Nil = hasListModule && _elm_lang$core$Native_List.Nil
+  var Cons = hasListModule && _elm_lang$core$Native_List.Cons
+  var NilCtor = hasListModule && ctorOf(_elm_lang$core$Native_List.Nil)
+  var ListSingletonCtor = hasListModule && ctorOf(_elm_lang$core$List$singleton(1))
+
+  function isList(list) {
+    return ctorOf(list) === NilCtor
+        || ctorOf(list) === ListSingletonCtor
+  }
+
+  function listAll(predicate, list) {
+    if (strict) { checkFunction(predicate); checkList(list) }
+    return A2(_elm_lang$core$List$all, predicate, list)
+  }
+
+  var coreListIsEmpty = hasListModule && _elm_lang$core$List$isEmpty
+  var coreListHead = hasListModule && _elm_lang$core$List$head
+
+  var listHelpers =
+    !hasListModule ? {} :
+    {
       isList: isList,
       empty: Nil,
       singleton: _elm_lang$core$List$singleton,
@@ -460,10 +265,27 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
         if (strict) { checkList(list); checkListValue(value, list) }
         return Cons(value, list)
       }
-    },
-    // -------------------------------------------------------------------------
-    // MAYBE
-    maybe: {
+    }
+
+  // -------------------------------------------------------------------------
+  // MAYBE
+  var Nothing = hasMaybeModule && _elm_lang$core$Maybe$Nothing
+  var Just = hasMaybeModule && _elm_lang$core$Maybe$Just
+  var NothingCtor = hasMaybeModule && ctorOf(Nothing)
+  var JustCtor = hasMaybeModule && ctorOf(Just(0))
+
+  function isNothing(value) { return ctorOf(value) === NothingCtor }
+  function isJust(value)    { return ctorOf(value) === JustCtor }
+  function isMaybe(value)   { return isNothing(value) || isJust(value) }
+
+  function maybeGetImpl(value) {
+    if (isJust(value)) { return value._0 }
+    return undefined
+  }
+
+  var maybeHelpers =
+    !hasMaybeModule ? {} :
+    {
       nothing: Nothing,
       just: Just,
       isNothing: isNothing,
@@ -495,10 +317,30 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
         if (typeof value === 'number' && isNaN(value)) { return Nothing }
         return Just(value)
       }
-    },
-    // -------------------------------------------------------------------------
-    // RESULT
-    result: {
+    }
+
+
+
+  // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // RESULT
+  var Ok = hasResultModule && _elm_lang$core$Result$Ok
+  var Err = hasResultModule && _elm_lang$core$Result$Err
+  var OkCtor = hasResultModule && ctorOf(Ok(0))
+  var ErrCtor = hasResultModule && ctorOf(Err(0))
+
+  function isOk(value)     { return ctorOf(value) === OkCtor }
+  function isErr(value)    { return ctorOf(value) === ErrCtor }
+  function isResult(value) { return isOk(value) || isErr(value) }
+
+  function resultGetImpl(value) {
+    if (isResult(value)) { return value._0 }
+    return undefined
+  }
+
+  var resultHelpers =
+    !hasResultModule ? {} :
+    {
       ok: Ok,
       err: Err,
       isOk: isOk,
@@ -537,10 +379,32 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
         if (isErr(result)) { return onErr(resultGetImpl(result)) }
         if (isOk(result))  { return onOk(resultGetImpl(result)) }
       }
-    },
-    // -------------------------------------------------------------------------
-    // TASK
-    task: {
+    }
+
+
+
+  // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // TASK
+  function isThenable(promise) {
+    return (promise && typeof promise['then'] === 'function')
+  }
+
+  function normalizePromise(promise) {
+    return promise.then(function (success) {
+        return { ok: true, value: success }
+      }, function (failure) {
+        return { ok: false, value: failure }
+      })
+  }
+
+  function isTask(task) {
+    return (ctorOf(task) || '').indexOf('_Task_') === 0
+  }
+
+  var taskHelpers =
+    !hasTaskModule ? {} :
+    {
       succeed: scheduler.succeed,
       fail: scheduler.fail,
       spawn: function taskSpawn(task) {
@@ -594,10 +458,39 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
           })
         })
       }
-    },
-    // -------------------------------------------------------------------------
-    // TUPLE
-    tuple: {
+    }
+
+
+
+  // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // TUPLE
+  function tuplePair(a, b) {
+    return _elm_lang$core$Native_Utils.Tuple2(a, b)
+  }
+
+  var Tuple2 = hasTupleModule && tuplePair(1, 2)
+  var Tuple2Ctor = hasTupleModule && ctorOf(Tuple2)
+
+  function isTuple2(tuple) {
+    return ctorOf(tuple) === Tuple2Ctor
+  }
+
+  function isTuple(tuple) {
+    return (ctorOf(tuple) || '').indexOf('_Tuple') === 0
+  }
+
+  // private function
+  function tupleAll(predicate, tuple) {
+    return Object.keys(tuple).reduce(function (res, key) {
+      if (key === ctorKey) { return res }
+      return res && predicate(tuple[key])
+    }, true)
+  }
+
+  var tupleHelpers =
+    !hasTupleModule ? {} :
+    {
       empty: _elm_lang$core$Native_Utils.Tuple0,
       pair: tuplePair,
       first: function tupleFirst(tuple) {
@@ -609,5 +502,160 @@ var _pauldijou$elm_kernel_helpers$Native_Kernel_Helpers = function () {
         return _elm_lang$core$Tuple$second(tuple)
       }
     }
+
+  // -------------------------------------------------------------------------
+  // CHECKS
+  function isRecord(record) {
+    return (record instanceof Object) &&
+      (ctorOf(record) === undefined)
+  }
+
+  function isString(value) {
+    return typeof value === 'string'
+  }
+
+  function isInt(value) {
+    return isFloat(value) &&
+      (-2147483647 < value) &&
+      (value < 2147483647) &&
+      ((value | 0) === value)
+  }
+
+  function isFloat(value) {
+    return (typeof value === 'number') && (!isNaN(value))
+  }
+
+  function isBool(value) {
+    return typeof value === 'boolean'
+  }
+
+  function isSame(a, b) {
+    if (a === b) { return true }
+    if (a === undefined) { return b === undefined }
+    if (a === null) { return b === null }
+    if (isString(a)) { return isString(b) }
+    if (isInt(a)) { return isInt(b) }
+    if (isFloat(a)) { return isFloat(b) }
+    if (isBool(a)) { return isBool(b) }
+
+    if (hasMaybeModule && isNothing(a)) { return isMaybe(b) }
+    if (hasMaybeModule && isJust(a)) { return isNothing(b) || (isJust(b) && isSame(maybeGetImpl(a), maybeGetImpl(b))) }
+
+    if (hasResultModule && isOk(a)) { return isErr(b) || (isOk(b) && isSame(resultGetImpl(a), resultGetImpl(b))) }
+    if (hasResultModule && isErr(a)) { return isOk(b) || (isErr(b) && isSame(resultGetImpl(a), resultGetImpl(b))) }
+
+    if (hasListModule && isList(a)) {
+      return isList(b) && isSame(coreListHead(a), coreListHead(b))
+    }
+
+    if (hasDictModule && isDict(a)) {
+      return isDict(b) && isSame(coreDictKeys(a), coreDictKeys(b)) && isSame(coreDictValues(a), coreDictValues(b))
+    }
+
+    if (isRecord(a)) {
+      return isRecord(b) &&
+        (Object.keys(a).length === Object.keys(b).length) &&
+        Object.keys(a).reduce(function (acc, key) { return acc && isSame(a[key], b[key]) }, true)
+    }
+
+    if (isTuple(a)) {
+      return isTuple(b) &&
+        (Object.keys(a).length === Object.keys(b).length) &&
+        Object.keys(a).reduce(function (acc, key) {
+          return key === ctorKey ? acc : acc && isSame(a[key], b[key])
+        }, true)
+    }
+
+    if (hasTaskModule && isTask(a)) {
+      return isTask(b)
+    }
+
+    return true
+  }
+
+  function isComparable(value) {
+    return isString(value)
+      || isFloat(value)
+      || (hasListModule && isList(value) && listAll(isComparable, value))
+      || (hasTupleModule && isTuple(value) && tupleAll(isComparable, value))
+  }
+
+  function isFunction(value) {
+    return typeof value === 'function'
+  }
+
+  function checkSame(value1, value2) {
+    if (!isSame(value1, value2)) {
+      throw new TypeError('Expected both values to be the same but first one was ' + stringify(value1) + ', while second one was ' + stringify(value2))
+    }
+  }
+
+  function checkString(value) {
+    if (!isString(value)) { throw new TypeError('Expected a string, got: ' + stringify(value)) }
+  }
+
+  function checkFunction(value) {
+    if (!isFunction(value)) { throw new TypeError('Expected a function, got: ' + stringify(value)) }
+  }
+
+  function checkComparable(value) {
+    if (!isComparable(value)) { throw new TypeError('Expected a comparable value, got: ' + stringify(value)) }
+  }
+
+  function checkList(value) {
+    if (!isList(value)) { throw new TypeError('Expected a List, got: ' + stringify(value)) }
+  }
+
+  function checkListValue(value, list) {
+    var head = coreListHead(list)
+    if (isJust(head)) { checkSame(value, maybeGetImpl(head)) }
+  }
+
+  function checkDict(value) {
+    if (!isDict(value)) { throw new TypeError('Expected a Dict, got: ' + stringify(value)) }
+  }
+
+  function checkDictKey(key, dict) {
+    var firstKey = coreListHead(coreDictKeys(dict))
+    if (isJust(firstKey)) { checkSame(key, maybeGetImpl(firstKey)) }
+  }
+
+  function checkDictValue(value, dict) {
+    var firstValue = coreListHead(coreDictValues(dict))
+    if (isJust(firstValue)) { checkSame(value, maybeGetImpl(firstValue)) }
+  }
+
+  function checkMaybe(value) {
+    if (!isMaybe(value)) { throw new TypeError('Expected a Maybe, got: ' + stringify(value)) }
+  }
+
+  function checkResult(value) {
+    if (!isResult(value)) { throw new TypeError('Expected a Result, got: ' + stringify(value)) }
+  }
+
+  function checkTask(value) {
+    if (!isTask(value)) { throw new TypeError('Expected a Task, got: ' + stringify(value)) }
+  }
+
+  function checkTuple2(value) {
+    if (!isTuple2(value)) { throw new TypeError('Expected a Tuple2, got: ' + stringify(value)) }
+  }
+
+  function checkJsArray(value) {
+    if (!Array.isArray(value)) { throw new TypeError('Expected a JavaScript array, got: ' + stringify(value)) }
+  }
+
+  return {
+    noWarnings: '',
+    strict: function (value) {
+      strict = value
+    },
+    basics: basicsHelpers,
+    dict: dictHelpers,
+    list: listHelpers,
+    maybe: maybeHelpers,
+    result: resultHelpers,
+    task: taskHelpers,
+    tuple: tupleHelpers
   }
 }()
